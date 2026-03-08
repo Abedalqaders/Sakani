@@ -1,3 +1,27 @@
-To make a GitHub README "cool" and readable, you need a clear hierarchy, visual cues (emojis), code blocks, and structured sections.Here is the enhanced version of your README.md. Copy the raw text below:🏢 Real Estate SaaS - BackendA multi-tenant SaaS platform for real estate management. This repository contains the backend infrastructure, API, and core logic.🚀 Quick Start GuideFollow these steps to get the environment running on your local machine.1. PrerequisitesEnsure you have the following installed:Docker Desktop (Required for Database).NET 8 SDK (Required for API)DataGrip or pgAdmin (Optional - for DB management)2. Infrastructure Setup (Docker) 🐳We use Docker to spin up the PostgreSQL instance instantly.Open your terminal in the project root.Run the command:Bashdocker-compose up -d
-Verify: Run docker ps. You should see realestate_postgres running on port 5432.🛠️ Database ConfigurationEntity Framework MigrationsSince the schema is managed via EF Core, you must sync your local database after the Docker container is up.Open the solution in Visual Studio.Open Package Manager Console.Set Default Project to Infrastructure.Set Startup Project to API.Run:PowerShellUpdate-Database
-🗄️ Database Management (DataGrip)To connect your DataGrip to the Dockerized database:SettingValueDriverPostgreSQLHostlocalhostPort5432UserpostgresPasswordDefined in docker-compose.ymlDatabaseRealEstateDb💡 Tip: If you don't see your tables after connecting, right-click the connection -> Properties -> Schemas -> Check All databases.🏗️ Project ArchitectureThe project follows N-Tier Architecture with a focus on Clean Code:Domain: Core Entities, Enums, and Logic.Application: Interfaces, DTOs, and Services.Infrastructure: DbContext, Migrations, and Repositories.API: Controllers, Middlewares, and Program.cs.⚠️ TroubleshootingPort 5432 is busy: You might have PostgreSQL installed locally. Stop the local service or change the port mapping in docker-compose.yml.Empty Schema: If Update-Database succeeds but you see no tables, ensure you are connected to the RealEstateDb database, not the default postgres database.Docker Errors: Ensure Docker Desktop is running with WSL 2 enabled on Windows.
+# 🏢 Real Estate SaaS - Backend 
+
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-512bd4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Container-2496ed?logo=docker&logoColor=white)](https://www.docker.com/)
+
+A robust multi-tenant SaaS platform designed for professional real estate management. This backend handles data isolation, automated migrations, and complex contract logic.
+
+## 🚀 Quick Start Guide
+
+Follow these steps to synchronize the development environment on your local machine.
+
+### 1. Prerequisites 📋
+Ensure the following are installed:
+* **Docker Desktop** (To run the database)
+* **.NET 8 SDK** (To run the API)
+* **DataGrip** or **pgAdmin** (To manage data)
+
+### 2. Infrastructure Setup (Docker) 🐳
+We use Docker to spin up the PostgreSQL instance instantly without manual installation.
+
+1. Open your terminal in the project root.
+2. Run the command:
+   ```bash
+   docker-compose up -d
+Verify: Run docker ps. You should see the realestate_postgres container running on port 5432.🛠️ Database ConfigurationEntity Framework MigrationsThe schema is managed via EF Core. You must sync your local database after the Docker container is active.Open the solution in Visual Studio.Open Package Manager Console.Set Default Project to Infrastructure.Set Startup Project to API.Run the following command:PowerShellUpdate-Database
+🗄️ Database Management (DataGrip)Connect DataGrip to the Dockerized database using these settings:PropertyValueDriverPostgreSQLHostlocalhostPort5432UserpostgresPasswordRefer to docker-compose.ymlDatabaseRealEstateDb[!TIP]If tables are missing after connecting: Right-click Connection -> Properties -> Schemas -> Check All databases or public.🏗️ Project ArchitectureThe project follows N-Tier/Clean Architecture principles:Domain: Core Entities and Business Enums.Application: Business logic, DTOs, and Interfaces.Infrastructure: PostgreSQL Implementation, DbContext, and Migrations.API: REST Endpoints, Middlewares, and Authentication.⚠️ TroubleshootingPort 5432 Conflict: If you have a local PostgreSQL service running, stop it or change the host port in docker-compose.yml.Docker Daemon: Ensure Docker Desktop is fully loaded (Green icon) before running commands.Update-Database Failure: Verify the ConnectionStrings in appsettings.json matches the credentials in your Docker file.
