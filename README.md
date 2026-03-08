@@ -46,8 +46,8 @@ Connect **DataGrip** to the Dockerized database using these settings:
 | **Host** | `localhost` |
 | **Port** | `5432` |
 | **User** | `postgres` |
-| **Password** | *Refer to docker-compose.yml* |
-| **Database** | `RealEstateDb` |
+| **Password** | 'MyPassword1234'|
+| **Database** | `Sakani` |
 
 > [!TIP]
 > If tables are missing after connecting: Right-click Connection -> Properties -> Schemas -> Check All databases or public.
