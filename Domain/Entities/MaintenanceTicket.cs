@@ -9,7 +9,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Domain.Entities
 {
-    public class Image :BaseEntity
+    public class Image :TenantEntity
     {
         public string ImagePath { get; set; }
         public Guid TicketId { get; set; }
@@ -17,7 +17,7 @@ namespace Domain.Entities
         // Navigation Properties
         public MaintenanceTicket Ticket { get; set; }
     }
-    public class MaintenanceTicket:BaseEntity
+    public class MaintenanceTicket:TenantEntity
     {
         public Guid UnitId { get; set; }
         public Guid RenterId { get; set; }

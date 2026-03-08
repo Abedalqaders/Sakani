@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Expense: BaseEntity
+    public class Expense: TenantEntity
     {
         public Guid PropertyId { get; set; }
         public decimal Amount { get; set; }

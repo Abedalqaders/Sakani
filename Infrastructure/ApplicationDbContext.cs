@@ -22,25 +22,85 @@
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. تطبيق نظام التسمية snake_case لـ Postgres تلقائياً
-            // يتم تفعيلها عادة في الـ Program.cs عبر .UseSnakeCaseNamingConvention()
+            // 1. فلاتر البيانات (Tenant Isolation & Soft Delete)
+            // جداول النظام العامة
+            modelBuilder.Entity<Tenant>().HasQueryFilter(t => !t.IsDeleted);
+            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+            // جداول الشركات (Isolation)
 
-            // 2. تطبيق الـ Global Query Filters (السحر الحقيقي)
-            // هذا الفلتر يضمن أن أي استعلام لا يرجع البيانات المحذوفة منطقياً
-            modelBuilder.Entity<Property>().HasQueryFilter(p => !p.IsDeleted);
-            modelBuilder.Entity<Unit>().HasQueryFilter(u => !u.IsDeleted);
-            modelBuilder.Entity<Contract>().HasQueryFilter(c => !c.IsDeleted);
+            // بس اعمل AUTHORIZATION بنفعلو
+            //modelBuilder.Entity<Property>().HasQueryFilter(p => p.TبnantId == _tenantId && !p.IsDeleted);
+            //modelBuilder.Entity<Unit>().HasQueryFilter(u => u.TenantId == _tenantId && !u.IsDeleted);
+            //modelBuilder.Entity<Contract>().HasQueryFilter(c => c.TenantId == _tenantId && !c.IsDeleted);
+            //modelBuilder.Entity<Renter>().HasQueryFilter(r => r.TenantId == _tenantId && !r.IsDeleted);
+            //modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantId && !e.IsDeleted);
+            //modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
 
-            // 3. إعدادات خاصة للـ Enums لتخزينها كـ SmallInt (TinyInt) [cite: 2026-01-31]
-            modelBuilder.Entity<Contract>()
-                .Property(c => c.ContractStatus)
-                .HasConversion<byte>(); // يخزنها كـ byte في الكود و smallint في Postgres
+            // 2. تحويل الـ Enums لقيم عددية (SmallInt)
+            modelBuilder.Entity<Contract>().Property(c => c.ContractStatus).HasConversion<byte>(); 
+    modelBuilder.Entity<Tenant>().Property(t => t.Status).HasConversion<byte>();
+            modelBuilder.Entity<Expense>().Property(e => e.ExpenseType).HasConversion<byte>();
 
-            // 4. العلاقات (Relationships)
+            // 3. بناء العلاقات كما وردت في الـ ERD
+
+            // العقارات والوحدات (Property -> Units)
             modelBuilder.Entity<Property>()
                 .HasMany(p => p.Units)
                 .WithOne(u => u.Property)
-                .HasForeignKey(u => u.PropertyId);
+                .HasForeignKey(u => u.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // العقارات والمصاريف (Property -> Expenses)
+            modelBuilder.Entity<Property>()
+                .HasMany(p => p.Expenses)
+                .WithOne(e => e.Property)
+                .HasForeignKey(e => e.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // الوحدات والعقود (Unit -> Contracts)
+            modelBuilder.Entity<Unit>()
+                .HasMany(u => u.Contracts)
+                .WithOne(c => c.Unit)
+                .HasForeignKey(c => c.UnitId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // المستأجرين والعقود (Renter -> Contracts)
+            modelBuilder.Entity<Renter>()
+                .HasMany(r => r.Contracts)
+                .WithOne(c => c.Renter)
+                .HasForeignKey(c => c.RenterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // العقود والدفعات (Contract -> Payments)
+            modelBuilder.Entity<Contract>()
+                .HasMany(c => c.Payments)
+                .WithOne(p => p.Contract)
+                .HasForeignKey(p => p.ContractId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // المستخدمين والمستأجرين (User -> Renter)
+            // يسمح بوجود مستأجر بدون حساب (UserId = Null)
+            modelBuilder.Entity<Renter>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // الشركات والمستخدمين (Tenant -> Users)
+            modelBuilder.Entity<Tenant>()
+                .HasMany<User>()
+                .WithOne()
+                .HasForeignKey(u => u.TenantId)
+                .IsRequired(false) // يسمح بمدير نظام (Super Admin)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // الأدوار والمستخدمين (Role -> Users)
+            modelBuilder.Entity<Role>()
+                .HasMany<User>()
+                .WithOne(u => u.Role)
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

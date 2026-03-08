@@ -18,6 +18,7 @@ namespace Domain.Entities
         public string PasswordHashed { get; set; }
         public string Email { get; set; }
         public int RoleId { get; set; }
+        public Guid? TenantId { get; set; } 
         public DateTime? LastLogin { set; get; }
 
         public Role  Role { get; set; }

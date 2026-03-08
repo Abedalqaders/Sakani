@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Property:BaseEntity
+    public class Property:TenantEntity
     {
         public string Name { get; set; }
         public string City { get; set; }
@@ -19,5 +19,6 @@ namespace Domain.Entities
 
         // Navigation Properties
         public ICollection<Unit> Units { get; set; }
+        public ICollection<Expense> Expenses { get; set; }
     }
 }

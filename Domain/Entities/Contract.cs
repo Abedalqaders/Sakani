@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
 
-    public class Contract:BaseEntity
+    public class Contract: TenantEntity
     {
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -21,5 +21,6 @@ namespace Domain.Entities
         // Navigation Properties
         public Unit Unit { get; set; }
         public Renter Renter { get; set; }
+        public ICollection<Payment> Payments { get; set; }
     }
 }

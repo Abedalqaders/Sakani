@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Payment:BaseEntity
+    public class Payment:TenantEntity
     {
         public decimal Amount { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime? PaymentDate { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
+        public Guid ContractId { get; set; }
+        public Contract Contract { get; set; }
     }
 }
