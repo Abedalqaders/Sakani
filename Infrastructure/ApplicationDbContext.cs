@@ -10,13 +10,14 @@
 
         // تعريف الجداول (DbSets)
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Property> Properties { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<Renter> Renters { get; set; }
-        public DbSet<Expense> Expenses { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<MaintenanceTicket> MaintenanceTickets { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
