@@ -463,9 +463,9 @@ namespace Infrastructure.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id")
-                        .HasName("pk_role");
+                        .HasName("pk_roles");
 
-                    b.ToTable("role", (string)null);
+                    b.ToTable("roles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Unit", b =>
@@ -590,15 +590,15 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
-                        .HasName("pk_user");
+                        .HasName("pk_users");
 
                     b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_user_role_id");
+                        .HasDatabaseName("ix_users_role_id");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_user_tenant_id");
+                        .HasDatabaseName("ix_users_tenant_id");
 
-                    b.ToTable("user", (string)null);
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("Tenant", b =>
@@ -752,7 +752,7 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_renters_user_user_id");
+                        .HasConstraintName("fk_renters_users_user_id");
 
                     b.Navigation("User");
                 });
@@ -776,13 +776,13 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_user_role_role_id");
+                        .HasConstraintName("fk_users_roles_role_id");
 
                     b.HasOne("Tenant", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_user_tenants_tenant_id");
+                        .HasConstraintName("fk_users_tenants_tenant_id");
 
                     b.Navigation("Role");
                 });

@@ -13,27 +13,6 @@ namespace Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "payments",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    payment_status = table.Column<byte>(type: "smallint", nullable: false),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_payments", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "properties",
                 columns: table => new
                 {
@@ -44,12 +23,12 @@ namespace Infrastructure.Migrations
                     address_region = table.Column<string>(type: "text", nullable: false),
                     building_no = table.Column<string>(type: "text", nullable: false),
                     property_type = table.Column<byte>(type: "smallint", nullable: false),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,7 +36,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "role",
+                name: "roles",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -66,7 +45,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_role", x => x.id);
+                    table.PrimaryKey("pk_roles", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -80,9 +59,12 @@ namespace Infrastructure.Migrations
                     address_region = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     phone_number = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<byte>(type: "smallint", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    status = table.Column<byte>(type: "smallint", nullable: false)
+                    created_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,12 +80,12 @@ namespace Infrastructure.Migrations
                     amount = table.Column<decimal>(type: "numeric", nullable: false),
                     expense_type = table.Column<byte>(type: "smallint", nullable: false),
                     expense_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,7 +95,7 @@ namespace Infrastructure.Migrations
                         column: x => x.property_id,
                         principalTable: "properties",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -127,12 +109,12 @@ namespace Infrastructure.Migrations
                     rent_price = table.Column<decimal>(type: "numeric", nullable: false),
                     property_id = table.Column<Guid>(type: "uuid", nullable: false),
                     unit_status = table.Column<byte>(type: "smallint", nullable: false),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -142,7 +124,7 @@ namespace Infrastructure.Migrations
                         column: x => x.property_id,
                         principalTable: "properties",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,8 +136,8 @@ namespace Infrastructure.Migrations
                     password_hashed = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     role_id = table.Column<int>(type: "integer", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: true),
                     last_login = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -166,11 +148,17 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("pk_users", x => x.id);
                     table.ForeignKey(
-                        name: "fk_users_role_role_id",
+                        name: "fk_users_roles_role_id",
                         column: x => x.role_id,
-                        principalTable: "role",
+                        principalTable: "roles",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_users_tenants_tenant_id",
+                        column: x => x.tenant_id,
+                        principalTable: "tenants",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,14 +168,14 @@ namespace Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     national_id = table.Column<string>(type: "text", nullable: false),
                     phone_number = table.Column<string>(type: "text", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: true),
                     description = table.Column<string>(type: "text", nullable: false),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -197,7 +185,7 @@ namespace Infrastructure.Migrations
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -212,12 +200,12 @@ namespace Infrastructure.Migrations
                     unit_id = table.Column<Guid>(type: "uuid", nullable: false),
                     renter_id = table.Column<Guid>(type: "uuid", nullable: false),
                     contract_status = table.Column<byte>(type: "smallint", nullable: false),
-                    tenat_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -227,11 +215,98 @@ namespace Infrastructure.Migrations
                         column: x => x.renter_id,
                         principalTable: "renters",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_contracts_units_unit_id",
                         column: x => x.unit_id,
                         principalTable: "units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "maintenance_tickets",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    unit_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    renter_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    subject = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    ticket_status = table.Column<byte>(type: "smallint", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_maintenance_tickets", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_maintenance_tickets_renters_renter_id",
+                        column: x => x.renter_id,
+                        principalTable: "renters",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_maintenance_tickets_units_unit_id",
+                        column: x => x.unit_id,
+                        principalTable: "units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "payments",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    payment_status = table.Column<byte>(type: "smallint", nullable: false),
+                    contract_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_payments", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_payments_contracts_contract_id",
+                        column: x => x.contract_id,
+                        principalTable: "contracts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "images",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    image_path = table.Column<string>(type: "text", nullable: false),
+                    ticket_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_images", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_images_maintenance_tickets_ticket_id",
+                        column: x => x.ticket_id,
+                        principalTable: "maintenance_tickets",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -252,6 +327,26 @@ namespace Infrastructure.Migrations
                 column: "property_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_images_ticket_id",
+                table: "images",
+                column: "ticket_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_maintenance_tickets_renter_id",
+                table: "maintenance_tickets",
+                column: "renter_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_maintenance_tickets_unit_id",
+                table: "maintenance_tickets",
+                column: "unit_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_payments_contract_id",
+                table: "payments",
+                column: "contract_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_renters_user_id",
                 table: "renters",
                 column: "user_id");
@@ -265,22 +360,30 @@ namespace Infrastructure.Migrations
                 name: "ix_users_role_id",
                 table: "users",
                 column: "role_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_users_tenant_id",
+                table: "users",
+                column: "tenant_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "contracts");
+                name: "expenses");
 
             migrationBuilder.DropTable(
-                name: "expenses");
+                name: "images");
 
             migrationBuilder.DropTable(
                 name: "payments");
 
             migrationBuilder.DropTable(
-                name: "tenants");
+                name: "maintenance_tickets");
+
+            migrationBuilder.DropTable(
+                name: "contracts");
 
             migrationBuilder.DropTable(
                 name: "renters");
@@ -295,7 +398,10 @@ namespace Infrastructure.Migrations
                 name: "properties");
 
             migrationBuilder.DropTable(
-                name: "role");
+                name: "roles");
+
+            migrationBuilder.DropTable(
+                name: "tenants");
         }
     }
 }

@@ -1,14 +1,22 @@
 ﻿namespace Infrastructure
 {
-    using Microsoft.EntityFrameworkCore;
     using Domain.Entities;
     using Domain.Enums;
+    using Microsoft.EntityFrameworkCore;
+    using Sakani.Application.Common.Interfaces;
 
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        private readonly Guid? _tenantId;
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService)
+         : base(options)
+        {
+            _tenantId = tenantService.GetTenantId();
+        }
 
         // تعريف الجداول (DbSets)
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Property> Properties { get; set; }
         public DbSet<Unit> Units { get; set; }
@@ -23,19 +31,21 @@
         {
             base.OnModelCreating(modelBuilder);
 
+            // إضافة الأدوار الأساسي
             // 1. فلاتر البيانات (Tenant Isolation & Soft Delete)
             // جداول النظام العامة
             modelBuilder.Entity<Tenant>().HasQueryFilter(t => !t.IsDeleted);
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             // جداول الشركات (Isolation)
 
-            // بس اعمل AUTHORIZATION بنفعلو
-            //modelBuilder.Entity<Property>().HasQueryFilter(p => p.TبnantId == _tenantId && !p.IsDeleted);
-            //modelBuilder.Entity<Unit>().HasQueryFilter(u => u.TenantId == _tenantId && !u.IsDeleted);
-            //modelBuilder.Entity<Contract>().HasQueryFilter(c => c.TenantId == _tenantId && !c.IsDeleted);
-            //modelBuilder.Entity<Renter>().HasQueryFilter(r => r.TenantId == _tenantId && !r.IsDeleted);
-            //modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantId && !e.IsDeleted);
-            //modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
+     
+
+           modelBuilder.Entity<Property>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
+            modelBuilder.Entity<Unit>().HasQueryFilter(u => u.TenantId == _tenantId && !u.IsDeleted);
+            modelBuilder.Entity<Contract>().HasQueryFilter(c => c.TenantId == _tenantId && !c.IsDeleted);
+            modelBuilder.Entity<Renter>().HasQueryFilter(r => r.TenantId == _tenantId && !r.IsDeleted);
+            modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantId && !e.IsDeleted);
+            modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
 
             // 2. تحويل الـ Enums لقيم عددية (SmallInt)
             modelBuilder.Entity<Contract>().Property(c => c.ContractStatus).HasConversion<byte>(); 
