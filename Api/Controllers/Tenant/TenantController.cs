@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure;
+using Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize] // حماية عامة لجميع الـ Endpoints في الكنترولر
-public class TenantsController : ControllerBase
+public class TenantsController : BaseSakaniController
 {
     private readonly ApplicationDbContext _context;
 
@@ -32,7 +33,7 @@ public class TenantsController : ControllerBase
                 Status = t.Status.ToString()
             })
             .FirstOrDefaultAsync();
-
+        
         if (tenant == null)
         {
             return NotFound(new { Message = "Tenant not found or you don't have access." });
