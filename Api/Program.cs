@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Models;
 using Sakani.Application.Common.Interfaces;
 using Sakani.Infrastructure.Services;
+using System.Reflection;
 using System.Text;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,13 +80,24 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpContextAccessor();
 
 // ربط الواجهة بالتنفيذ
-builder.Services.AddScoped<ITenantService, TenantService>();
-
+builder.Services.Scan(scan => scan
+    .FromAssemblies(
+        // نستخدم كلاسات معروفة من كل مشروع لنجلب الـ Assembly الخاص بها
+        typeof(Application.Common.Interfaces.ICurrentUserService).Assembly,
+        typeof(Infrastructure.ApplicationDbContext).Assembly,
+        System.Reflection.Assembly.GetExecutingAssembly() // مشروع الـ Api نفسه
+    )
+    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+        .AsImplementedInterfaces()
+        .WithScopedLifetime()
+    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+        .AsSelf()
+        .WithScopedLifetime()
+);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseSnakeCaseNamingConvention());
 
-builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
