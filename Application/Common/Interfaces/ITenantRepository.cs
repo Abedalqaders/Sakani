@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Application.Common.Interfaces
 {
-    public interface ICurrentUserService
+    public interface ITenantRepository : IGenericRepository<Tenant>
     {
-        public Guid? UserId { get; }
-        public Guid? TenantId { get; }
     
     }
 }

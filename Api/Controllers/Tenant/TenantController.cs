@@ -1,44 +1,109 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Application.Common.Interfaces;
+using Application.Dto.Tenant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure;
-using Api.Controllers;
+using Sakani.Application.Common.Interfaces;
+
+namespace Sakani.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // حماية عامة لجميع الـ Endpoints في الكنترولر
-public class TenantsController : BaseSakaniController
+[Authorize]
+public class TenantsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ITenantAppService _tenantService;
 
-    public TenantsController(ApplicationDbContext context)
+    public TenantsController(ITenantAppService tenantService)
     {
-        _context = context;
+        _tenantService = tenantService;
     }
 
-    [HttpGet("{id}")]
-    [Authorize(Policy = "TenantAccess")] 
-    public async Task<ActionResult<TenantResponseDto>> GetById(Guid id)
+   
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<TenantResponseDto>>> GetAll(CancellationToken cancellationToken)
     {
-        // استخدام FirstOrDefaultAsync لضمان مرور الطلب عبر الـ Global Query Filter
-        var tenant = await _context.Tenants
-            .Where(t => t.Id == id)
-            .Select(t => new TenantResponseDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Email = t.Email,
-                PhoneNumber = t.PhoneNumber,
-                AddressCity = t.AddressCity,
-                Status = t.Status.ToString()
-            })
-            .FirstOrDefaultAsync();
-        
-        if (tenant == null)
+        var tenants = await _tenantService.GetAllTenantsAsync(cancellationToken);
+        if (tenants.Count == 0)
         {
-            return NotFound(new { Message = "Tenant not found or you don't have access." });
+            return NotFound("No Tenant Found!");
         }
+        return Ok(tenants); 
+    }
+
+    // GET: api/tenants/{id}
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{id:guid}", Name = "GetTenantById")]
+    public async Task<ActionResult<TenantResponseDto>> GetTenantById(Guid id, CancellationToken cancellationToken)
+    {
+        var tenant = await _tenantService.GetTenantByIdAsync(id, cancellationToken);
+
+        if (tenant is null)
+            return NotFound($"Tenant with ID {id} was not found."); 
 
         return Ok(tenant);
+    }
+
+    // POST: api/tenants
+    [HttpPost(Name = "CreateTenant")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Guid>> CreateTenant([FromBody] CreateTenantDto dto, CancellationToken cancellationToken)
+    {
+       
+        var tenantId = await _tenantService.CreateTenantAsync(dto, cancellationToken);
+
+        
+        return CreatedAtAction(nameof(GetTenantById), new { id = tenantId }, tenantId);
+    }
+
+    // PUT: api/tenants/{id}
+    [HttpPut("{id:guid}",Name = "Tenant")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateTenant(Guid id, [FromBody] UpdateTenantDto dto, CancellationToken cancellationToken)
+    {
+     
+        if (id != dto.Id)
+            return BadRequest("The ID in the URL does not match the ID in the request body.");
+
+        try
+        {
+            await _tenantService.UpdateTenantAsync(dto, cancellationToken);
+            return NoContent(); 
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the property.");
+        }
+    }
+
+  
+    [HttpDelete("{id:guid}",Name = "DeleteTenant")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTenant(Guid id, CancellationToken cancellationToken)
+    {
+        
+        try
+        {
+            await _tenantService.DeleteTenantAsync(id, cancellationToken);
+            return NoContent(); 
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 }

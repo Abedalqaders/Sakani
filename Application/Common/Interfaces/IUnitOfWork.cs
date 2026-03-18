@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Interfaces
 {
-    public interface ICurrentUserService
+    public interface IUnitOfWork
     {
-        public Guid? UserId { get; }
-        public Guid? TenantId { get; }
-    
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

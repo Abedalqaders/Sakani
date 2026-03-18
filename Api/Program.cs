@@ -1,4 +1,10 @@
+using Application.Common.Interfaces;
+using Application.Services;
+using Application.Validators.Tenant;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -7,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Models;
 using Sakani.Application.Common.Interfaces;
+using Sakani.Application.Services;
 using Sakani.Infrastructure.Services;
 using System.Reflection;
 using System.Text;
@@ -120,7 +127,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("TenantAccess", policy =>
         policy.Requirements.Add(new TenantOwnershipRequirement()));
 });
-
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTenantDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITenantAppService, TenantAppService>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyAppService, PropertyAppService>();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
