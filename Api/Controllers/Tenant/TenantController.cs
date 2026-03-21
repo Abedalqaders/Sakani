@@ -7,7 +7,7 @@ using Sakani.Application.Common.Interfaces;
 namespace Sakani.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/tenants")]
 [Authorize]
 public class TenantsController : ControllerBase
 {
@@ -72,20 +72,10 @@ public class TenantsController : ControllerBase
         if (id != dto.Id)
             return BadRequest("The ID in the URL does not match the ID in the request body.");
 
-        try
-        {
+       
             await _tenantService.UpdateTenantAsync(dto, cancellationToken);
             return NoContent(); 
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the property.");
-        }
+        
     }
 
   
@@ -95,15 +85,9 @@ public class TenantsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTenant(Guid id, CancellationToken cancellationToken)
     {
-        
-        try
-        {
+    
             await _tenantService.DeleteTenantAsync(id, cancellationToken);
             return NoContent(); 
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+       
     }
 }

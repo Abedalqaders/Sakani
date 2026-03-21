@@ -1,10 +1,11 @@
 ﻿using Application.Common.Interfaces;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System;
 
 namespace Infrastructure.Repositories
 {
@@ -18,7 +19,12 @@ namespace Infrastructure.Repositories
             _context = context;
             _dbSet = context.Set<T>();
         }
-
+        public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            // الـ AnyAsync هنا ستستخدم الـ Global Query Filter تلقائياً
+            // لأنها تعمل من خلال الـ DbContext المفلتر
+            return await _dbSet.AnyAsync(predicate, cancellationToken);
+        }
         public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             // تمرير CancellationToken يتطلب استخدام مصفوفة

@@ -51,6 +51,7 @@
             modelBuilder.Entity<Renter>().HasQueryFilter(r => r.TenantId == _tenantId && !r.IsDeleted);
             modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantId && !e.IsDeleted);
             modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
+            modelBuilder.Entity<MaintenanceTicket>().HasQueryFilter(m => m.TenantId == _tenantId && !m.IsDeleted);
 
             // 2. تحويل الـ Enums لقيم عددية (SmallInt)
             modelBuilder.Entity<Contract>().Property(c => c.ContractStatus).HasConversion<byte>();

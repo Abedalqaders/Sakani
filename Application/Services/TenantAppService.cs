@@ -20,7 +20,7 @@ public class TenantAppService : ITenantAppService
     {
         var tenants = await _repo.GetAllAsync(cancellationToken);
 
-      
+
         return tenants.Select(t => new TenantResponseDto
         {
             Id = t.Id,
@@ -28,7 +28,7 @@ public class TenantAppService : ITenantAppService
             Email = t.Email,
             PhoneNumber = t.PhoneNumber,
             AddressCity = t.AddressCity,
-            Status = t.Status
+            Status = t.Status.ToString()
         }).ToList();
     }
     public async Task<TenantResponseDto?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -44,7 +44,7 @@ public class TenantAppService : ITenantAppService
             Email = tenant.Email,
             PhoneNumber = tenant.PhoneNumber,
             AddressCity = tenant.AddressCity,
-            Status = tenant.Status
+            Status = tenant.Status.ToString()
         };
     }
 

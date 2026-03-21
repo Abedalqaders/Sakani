@@ -97,8 +97,11 @@ builder.Services.Scan(scan => scan
     .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
         .AsImplementedInterfaces()
         .WithScopedLifetime()
-    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+        .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
         .AsSelf()
+        .WithScopedLifetime()
+    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Repository")))
+        .AsImplementedInterfaces()
         .WithScopedLifetime()
 );
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -130,10 +133,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTenantDtoValidator>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ITenantAppService, TenantAppService>();
-builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
-builder.Services.AddScoped<IPropertyAppService, PropertyAppService>();
+
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -182,7 +182,7 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.MapControllers();
 
 app.Run();

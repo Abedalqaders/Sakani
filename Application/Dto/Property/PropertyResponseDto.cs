@@ -15,6 +15,6 @@ namespace Application.Dto.Property
         public string Street { get; set; }
         public string AddressRegion { get; set; }
         public string BuildingNo { get; set; }
-        public PropertyType PropertyType { get; set; }
+        public string PropertyType { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -96,7 +97,59 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
+        var ammanProp1Id = Guid.Parse("3a59cc1c-f8d9-4ba4-9c9b-7ee0f5283af5");
+        var ammanProp2Id = Guid.Parse("c2ce1c24-a891-4e58-af66-c3c5a1faff90");
+        var zarqaPropId = Guid.Parse("4352708a-0656-404a-9475-da2622205340");
 
+        // إضافة عقارات عمان
+        if (!await context.Properties.IgnoreQueryFilters().AnyAsync(p => p.Id == ammanProp1Id))
+        {
+            await context.Properties.AddAsync(new Property
+            {
+                Id = ammanProp1Id, // ثبتنا الـ ID هون
+                Name = "Abdali Gateway Tower",
+                City = "Amman",
+                AddressRegion = "Abdali",
+                Street = "Al-Istishari St",
+                BuildingNo = "10",
+                PropertyType = PropertyType.Residential,
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        if (!await context.Properties.IgnoreQueryFilters().AnyAsync(p => p.Id == ammanProp2Id))
+        {
+            await context.Properties.AddAsync(new Property
+            {
+                Id = ammanProp2Id, // ثبتنا الـ ID هون
+                Name = "Jabal Amman Luxury Suites",
+                City = "Amman",
+                AddressRegion = "Jabal Amman",
+                Street = "Rainbow Street",
+                BuildingNo = "45",
+                PropertyType = PropertyType.Residential,
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        // إضافة عقار الزرقاء
+        if (!await context.Properties.IgnoreQueryFilters().AnyAsync(p => p.Id == zarqaPropId))
+        {
+            await context.Properties.AddAsync(new Property
+            {
+                Id = zarqaPropId, // ثبتنا الـ ID هون
+                Name = "Zarqa Commercial Center",
+                City = "Zarqa",
+                AddressRegion = "New Zarqa",
+                Street = "36th Street",
+                BuildingNo = "102",
+                PropertyType = PropertyType.Commercial,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
         await context.SaveChangesAsync();
     }
 }

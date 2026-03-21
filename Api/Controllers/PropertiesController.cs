@@ -9,7 +9,7 @@ namespace Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "TenantAccess")]
+
     public class PropertiesController : ControllerBase
     {
         private readonly IPropertyAppService _propertyService;
@@ -62,21 +62,11 @@ namespace Api.Controllers
             if (id != dto.Id)
                 return BadRequest("The ID in the URL does not match the ID in the request body.");
 
-            try
-            {
+            
                 await _propertyService.UpdatePropertyAsync(dto, cancellationToken);
                 return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-               
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
             
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the property.");
-            }
+           
         }
 
 
@@ -86,15 +76,11 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteProperty(Guid id, CancellationToken cancellationToken)
         {
-            try
-            {
+           
                 await _propertyService.DeletePropertyAsync(id, cancellationToken);
                 return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            
+            
         }
     }
 }

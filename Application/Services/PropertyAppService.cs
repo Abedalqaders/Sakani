@@ -25,7 +25,7 @@ namespace Application.Services
                 Street = p.Street,
                 AddressRegion = p.AddressRegion,
                 BuildingNo = p.BuildingNo,
-                PropertyType = p.PropertyType
+                PropertyType = p.PropertyType.ToString()
             }).ToList();
         }
         public async Task<PropertyResponseDto> GetPropertyByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -41,7 +41,7 @@ namespace Application.Services
                 Street = property.Street,
                 AddressRegion = property.AddressRegion,
                 BuildingNo = property.BuildingNo,
-                PropertyType = property.PropertyType
+                PropertyType = property.PropertyType.ToString()
             };
         }
 

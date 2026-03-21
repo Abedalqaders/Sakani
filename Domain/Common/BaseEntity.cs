@@ -11,7 +11,7 @@ namespace Domain.Common
         public Guid Id { get; set; } = Guid.NewGuid();
         public DateTime CreatedAt { set; get; } = DateTime.UtcNow;
         public Guid? CreatedBy { set; get;}
-        public DateTime UpdatedAt { set; get; }
+        public DateTime? UpdatedAt { set; get; }
         public Guid? UpdatedBy { set; get; }
         public bool IsDeleted { set; get; } = false;
 
