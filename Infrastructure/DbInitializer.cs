@@ -61,7 +61,7 @@ public static class DbInitializer
             {
                 Id = Guid.NewGuid(),
                 Name = "Ahmad Manager",
-                Email = "manager1@amman-re.com",
+                Email = "manager@amman-re.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Manager@123"),
                 RoleId = 2,
                 TenantId = tenant1Id,

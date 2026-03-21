@@ -7,7 +7,7 @@ namespace Sakani.API.Controllers;
 
 [ApiController]
 [Route("api/units")]
-[Authorize]
+[Authorize (Roles ="Tenant")]
 public class UnitsController : ControllerBase
 {
     private readonly IUnitAppService _unitService;

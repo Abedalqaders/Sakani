@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces;
+﻿using Api.Controllers;
+using Application.Common.Interfaces;
 using Application.Dto.Tenant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace Sakani.API.Controllers;
 [ApiController]
 [Route("api/tenants")]
 [Authorize]
-public class TenantsController : ControllerBase
+public class TenantsController : BaseSakaniController
 {
     private readonly ITenantAppService _tenantService;
 
@@ -22,6 +23,7 @@ public class TenantsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize (Roles ="SuperAdmin")]
     public async Task<ActionResult<IReadOnlyList<TenantResponseDto>>> GetAll(CancellationToken cancellationToken)
     {
         var tenants = await _tenantService.GetAllTenantsAsync(cancellationToken);
@@ -37,6 +39,7 @@ public class TenantsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{id:guid}", Name = "GetTenantById")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<ActionResult<TenantResponseDto>> GetTenantById(Guid id, CancellationToken cancellationToken)
     {
         var tenant = await _tenantService.GetTenantByIdAsync(id, cancellationToken);
@@ -51,6 +54,7 @@ public class TenantsController : ControllerBase
     [HttpPost(Name = "CreateTenant")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<ActionResult<Guid>> CreateTenant([FromBody] CreateTenantDto dto, CancellationToken cancellationToken)
     {
        
@@ -66,6 +70,7 @@ public class TenantsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> UpdateTenant(Guid id, [FromBody] UpdateTenantDto dto, CancellationToken cancellationToken)
     {
      
@@ -83,11 +88,29 @@ public class TenantsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> DeleteTenant(Guid id, CancellationToken cancellationToken)
     {
     
             await _tenantService.DeleteTenantAsync(id, cancellationToken);
             return NoContent(); 
        
+    }
+
+    [HttpGet("me")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "Tenant")]
+    public async Task<ActionResult<TenantResponseDto>> GetMyTenantInfo(CancellationToken cancellationToken)
+    {
+        // نستخدم المعرف الموجود في التوكن (CurrentTenantId من الأب)
+        // هذا يمنع أي شركة من رؤية بيانات شركة أخرى حتى لو عرفت الـ ID
+        if (CurrentTenantId == Guid.Empty)
+            return BadRequest("You are not associated with any tenant.");
+
+        var tenant = await _tenantService.GetTenantByIdAsync(CurrentTenantId, cancellationToken);
+
+        return tenant is not null ? Ok(tenant) : NotFound();
     }
 }

@@ -9,7 +9,7 @@ namespace Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize(Roles = "Tenant")]
     public class PropertiesController : ControllerBase
     {
         private readonly IPropertyAppService _propertyService;
