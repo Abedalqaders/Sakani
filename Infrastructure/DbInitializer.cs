@@ -150,6 +150,70 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
+        // 4. تعريف المستأجرين (Renters)
+        var renter1Id = Guid.Parse("7a123456-1111-2222-3333-444455556666");
+        var renter2Id = Guid.Parse("8b123456-2222-3333-4444-555566667777");
+
+        // مستأجر تابع لشركة عمان (Amman Real Estate)
+        if (!await context.Renters.IgnoreQueryFilters().AnyAsync(r => r.Id == renter1Id))
+        {
+            var renterUser1Id = Guid.NewGuid();
+
+            // إنشاء حساب مستخدم للمستأجر أولاً
+            await context.Users.AddAsync(new User
+            {
+                Id = renterUser1Id,
+                Name = "Omar Renter",
+                Email = "omar@gmail.com",
+                PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Renter@123"),
+                RoleId = 3, // Renter Role
+                TenantId = tenant1Id, // يتبع لنفس شركة العقارات
+                CreatedAt = DateTime.UtcNow
+            });
+
+            // إنشاء بيانات المستأجر
+            await context.Renters.AddAsync(new Renter
+            {
+                Id = renter1Id,
+                NationalId = "9901012345",
+                PhoneNumber = "0790000001",
+                Description = "Reliable tenant, works at Arab Bank",
+                UserId = renterUser1Id,
+                TenantId = tenant1Id, // عزل البيانات
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        // مستأجر تابع لشركة الزرقاء (Zarqa Properties)
+        if (!await context.Renters.IgnoreQueryFilters().AnyAsync(r => r.Id == renter2Id))
+        {
+            var renterUser2Id = Guid.NewGuid();
+
+            // حساب المستخدم
+            await context.Users.AddAsync(new User
+            {
+                Id = renterUser2Id,
+                Name = "Zaid Renter",
+                Email = "zaid@gmail.com",
+                PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Renter@123"),
+                RoleId = 3,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            // بيانات المستأجر
+            await context.Renters.AddAsync(new Renter
+            {
+                Id = renter2Id,
+                NationalId = "9952025566",
+                PhoneNumber = "0780000002",
+                Description = "Commercial tenant for Zarqa center",
+                UserId = renterUser2Id,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
         await context.SaveChangesAsync();
     }
 }
