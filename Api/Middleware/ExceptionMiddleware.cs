@@ -39,7 +39,6 @@ public class ExceptionMiddleware
         {
             StatusCode = context.Response.StatusCode,
             Message = exception.Message,
-            // في مشروع التخرج، ممكن تضيف StackTrace إذا كنت بوضع الـ Development
             Detail = exception.StackTrace?.ToString()
         };
 
