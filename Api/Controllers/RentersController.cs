@@ -24,19 +24,14 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<Guid>> Create([FromBody] CreateRenterDto dto, CancellationToken ct)
         {
-            try
-            {
+            
                 // The service handles logic and returns the new Renter ID
                 var renterId = await _renterService.CreateAsync(dto, ct);
 
                 // Returns 201 Created with a link to the GetById endpoint
                 return CreatedAtAction(nameof(GetById), new { id = renterId }, renterId);
-            }
-            catch (InvalidOperationException ex)
-            {
-                // Returns 400 if business rules fail (e.g., duplicate National ID)
-                return BadRequest(new { message = ex.Message });
-            }
+            
+           
         }
 
         [HttpGet]
