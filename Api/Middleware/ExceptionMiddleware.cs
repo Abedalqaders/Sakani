@@ -30,6 +30,7 @@ public class ExceptionMiddleware
         // هون بنحدد الـ Status Code بناءً على نوع الخطأ
         context.Response.StatusCode = exception switch
         {
+            InvalidOperationException => (int)HttpStatusCode.BadRequest,
             KeyNotFoundException => (int)HttpStatusCode.NotFound,      // 404
             UnauthorizedAccessException => (int)HttpStatusCode.Forbidden, // 403
             _ => (int)HttpStatusCode.InternalServerError              // 500

@@ -85,20 +85,11 @@ public class UnitsController : ControllerBase
         if (id != dto.Id)
             return BadRequest("The ID in the URL does not match the ID in the request body.");
 
-        try
-        {
+      
             await _unitService.UpdateAsync(dto, cancellationToken);
             return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            // Log the exception here in a real production scenario
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the unit.");
-        }
+        
+      
     }
 
     [HttpDelete("{id:guid}", Name = "DeleteUnit")]
@@ -107,14 +98,10 @@ public class UnitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUnit(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
+        
             await _unitService.DeleteAsync(id, cancellationToken);
             return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        
+      
     }
 }
