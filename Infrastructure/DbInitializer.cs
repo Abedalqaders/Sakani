@@ -61,7 +61,7 @@ public static class DbInitializer
             {
                 Id = Guid.NewGuid(),
                 Name = "Ahmad Manager",
-                Email = "manager1@amman-re.com",
+                Email = "manager@amman-re.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Manager@123"),
                 RoleId = 2,
                 TenantId = tenant1Id,
@@ -150,72 +150,6 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
-        // 4. إضافة الوحدات (Units)
-        if (!await context.Units.IgnoreQueryFilters().AnyAsync())
-        {
-            var units = new List<Unit>();
-
-            units.Add(new Unit
-            {
-                Id = Guid.NewGuid(),
-                UnitNo = "A-101",
-                Floor = "1st",
-                Area = "120 sqm",
-                RentPrice = 550.00m,
-                PropertyId = ammanProp1Id,
-                TenantId = tenant1Id,
-                UnitStatus = UnitStatus.Available,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            });
-
-            units.Add(new Unit
-            {
-                Id = Guid.NewGuid(),
-                UnitNo = "A-102",
-                Floor = "1st",
-                Area = "150 sqm",
-                RentPrice = 700.00m,
-                PropertyId = ammanProp1Id,
-                TenantId = tenant1Id,
-                UnitStatus = UnitStatus.Rented,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            });
-
-            units.Add(new Unit
-            {
-                Id = Guid.NewGuid(),
-                UnitNo = "Suite-501",
-                Floor = "5th",
-                Area = "85 sqm",
-                RentPrice = 1200.00m,
-                PropertyId = ammanProp2Id,
-                TenantId = tenant1Id,
-                UnitStatus = UnitStatus.UnderMaintenance,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            });
-
-            // وحدات لمركز الزرقاء التجاري (ZarqaProp)
-            units.Add(new Unit
-            {
-                Id = Guid.NewGuid(),
-                UnitNo = "Shop-G1",
-                Floor = "Ground",
-                Area = "45 sqm",
-                RentPrice = 300.00m,
-                PropertyId = zarqaPropId,
-                TenantId = tenant2Id,
-                UnitStatus = UnitStatus.Reserved,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            });
-
-            await context.Units.AddRangeAsync(units);
-           
-        }
-         await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
-
 }

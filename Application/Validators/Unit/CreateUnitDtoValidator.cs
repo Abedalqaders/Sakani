@@ -1,6 +1,5 @@
-﻿using Application.Dto.Unit;
-using Domain.Enums;
-using FluentValidation;
+﻿using FluentValidation;
+using Application.Dto.Unit;
 
 namespace Application.Validators.Unit
 {
@@ -27,9 +26,8 @@ namespace Application.Validators.Unit
             RuleFor(x => x.PropertyId)
                 .NotEmpty().WithMessage("A unit must be linked to a Property.");
 
-            RuleFor(x => (int)x.UnitStatus) // Cast to int for broader compatibility
-                .Must(val => Enum.IsDefined(typeof(UnitStatus), (byte)val))
-                .WithMessage("Invalid unit status.");
+            RuleFor(x => x.UnitStatus)
+                .IsInEnum().WithMessage("Invalid unit status.");
         }
         private bool BeAValidInteger(string floor)
         {
