@@ -213,7 +213,82 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
+        // تعريف IDs الوحدات
+        var unit1Id = Guid.Parse("11111111-2222-3333-4444-555566667777");
+        var unit2Id = Guid.Parse("22222222-3333-4444-5555-666677778888");
 
+        // إضافة وحدات لعقارات عمان
+        if (!await context.Units.IgnoreQueryFilters().AnyAsync(u => u.Id == unit1Id))
+        {
+            await context.Units.AddAsync(new Unit
+            {
+                Id = unit1Id,
+                UnitNo = "A-101",
+                Floor = "First",
+                RentPrice = 500,
+                Area = "120", // تمت إضافة الحقل المفقود هنا
+                PropertyId = ammanProp1Id,
+                UnitStatus = UnitStatus.Rented,
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        // إضافة عقد للمستأجر عمر في عمان
+        var contract1Id = Guid.Parse("99999999-8888-7777-6666-555544443333");
+        if (!await context.Contracts.IgnoreQueryFilters().AnyAsync(c => c.Id == contract1Id))
+        {
+            var contract1 = new Contract
+            {
+                Id = contract1Id,
+                StartDate = DateTime.UtcNow.AddMonths(-1), // بدأ قبل شهر
+                EndDate = DateTime.UtcNow.AddMonths(11),   // ينتهي بعد سنة
+                RentAmount = 6000, // إجمالي السنة
+                PaymentFreq = PaymentFrequency.Monthly,
+                ContractStatus = ContractStatus.Active,
+                UnitId = unit1Id,
+                RenterId = renter1Id,
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow,
+                Payments = new List<Payment>()
+            };
+
+            // توليد 12 دفعة يدوياً لهذا العقد لاختبار الـ GetContractWithPayments
+            for (int i = 0; i < 12; i++)
+            {
+                contract1.Payments.Add(new Payment
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = 500,
+                    DueDate = contract1.StartDate.AddMonths(i),
+                    PaymentStatus = i == 0 ? PaymentStatus.Paid : PaymentStatus.Pending, // أول دفعة مدفوعة
+                    PaymentDate = i == 0 ? DateTime.UtcNow.AddMonths(-1) : null,
+                    TenantId = tenant1Id,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+            await context.Contracts.AddAsync(contract1);
+        }
+
+        
+
+
+        // إضافة وحدة ثانية في الزرقاء
+        if (!await context.Units.IgnoreQueryFilters().AnyAsync(u => u.Id == unit2Id))
+        {
+            await context.Units.AddAsync(new Unit
+            {
+                Id = unit2Id,
+                UnitNo = "C-50",
+                Floor = "First",
+                RentPrice = 1200,
+                Area = "250",
+                PropertyId = zarqaPropId,
+                UnitStatus = UnitStatus.Available,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
         await context.SaveChangesAsync();
     }
 }

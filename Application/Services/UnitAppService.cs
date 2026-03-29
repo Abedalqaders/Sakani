@@ -34,7 +34,7 @@ namespace Application.Services
                 Floor = u.Floor,
                 Area = u.Area,
                 RentPrice = u.RentPrice,
-                Status = u.UnitStatus,
+                UnitStatus = u.UnitStatus,
                 PropertyId = u.PropertyId,
                 PropertyName = u.Property?.Name
             }).ToList();
@@ -52,7 +52,7 @@ namespace Application.Services
                 Floor = u.Floor,
                 Area = u.Area,
                 RentPrice = u.RentPrice,
-                Status = u.UnitStatus,
+                UnitStatus = u.UnitStatus,
                 PropertyId = u.PropertyId,
                 PropertyName = u.Property?.Name
             }).ToList();
@@ -68,7 +68,7 @@ namespace Application.Services
                 Floor = unit.Floor,
                 Area = unit.Area,
                 RentPrice = unit.RentPrice,
-                Status = unit.UnitStatus,
+                UnitStatus = unit.UnitStatus,
                 PropertyId = unit.PropertyId,
                 PropertyName = unit.Property?.Name
             };

@@ -10,5 +10,13 @@ namespace Application.Common.Interfaces
     public interface IContractAppService
     {
        public Task<Guid> CreateContractAsync(CreateContractDto dto, CancellationToken ct);
+
+        public Task<ContractResponseDto?> GetContractWithPaymentsAsync(Guid contractId, CancellationToken ct);
+
+        public Task<IReadOnlyList<ContractBasicResponseDto?>> GetBasicContractsForTenantAsync(CancellationToken ct);
+
+        public Task<ContractBasicResponseDto> GetActiveContractByUnitId(Guid unitId, CancellationToken ct);
+
+
     }
 }

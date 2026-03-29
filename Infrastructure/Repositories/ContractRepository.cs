@@ -1,0 +1,79 @@
+﻿using Application.Common.Interfaces;
+using Application.Dto.Contract;
+using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Infrastructure.Repositories
+{
+    public class ContractRepository : GenericRepository<Contract>, IContractRepository
+    {
+        public ContractRepository(ApplicationDbContext context) : base(context)
+        {
+        }
+
+        public async Task<ContractResponseDto?> GetContractWithPaymentsAsync(Guid contractId, CancellationToken ct)
+        {
+            return await _context.Set<Contract>()
+                .AsNoTracking() // دائماً استخدمها في عمليات القراءة فقط
+                .Where(c => c.Id == contractId)
+                .Select(c => new ContractResponseDto
+                {
+                    Id = c.Id,
+                    StartDate = c.StartDate,
+                    EndDate = c.EndDate,
+                    RentAmount = c.RentAmount,
+                    ContractStatus = c.ContractStatus,
+                    UnitId = c.UnitId,
+                    RenterId = c.RenterId,
+                    // جلب الدفعات يدوياً داخل الـ Select لضمان أفضل أداء (Single SQL Query)
+                    Payments = c.Payments.Select(p => new PaymentResponseDto
+                    {
+                        Id = p.Id,
+                        Amount = p.Amount,
+                        DueDate = p.DueDate,
+                        PaymentDate = p.PaymentDate,
+                        PaymentStatus = p.PaymentStatus
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync(ct);
+        }
+
+        public async Task<ContractBasicResponseDto?> GetActiveContractsByUnitIdAsync(Guid unitId, CancellationToken ct)
+        {
+            return await _context.Set<Contract>()
+                .AsNoTracking()
+                .Where(c => c.UnitId == unitId && c.ContractStatus == ContractStatus.Active).Select(c => new ContractBasicResponseDto
+                {
+                    Id = c.Id,
+                    StartDate = c.StartDate,
+                    EndDate = c.EndDate,
+                    RentAmount = c.RentAmount,
+                    ContractStatus = c.ContractStatus,
+                    UnitId = c.UnitId,
+                    RenterId = c.RenterId
+                })
+                .FirstOrDefaultAsync(ct);
+        }
+
+        public async Task<IReadOnlyList<ContractBasicResponseDto?>> GetBasicContractsForTenantAsync(CancellationToken ct)
+        { 
+          return await _context.Set<Contract>()
+                .Select(c => new ContractBasicResponseDto
+                {
+                    Id = c.Id,
+                    StartDate = c.StartDate,
+                    EndDate = c.EndDate,
+                    RentAmount = c.RentAmount,
+                    ContractStatus = c.ContractStatus,
+                    UnitId = c.UnitId,
+                    RenterId = c.RenterId
+                })
+                .ToListAsync(ct);
+        }
+    }
+}

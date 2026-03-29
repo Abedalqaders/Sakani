@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.Dto.Contract;
+using Domain.Entities;
+
 
 namespace Application.Common.Interfaces
 {
-    //public interface IContractRepository:IGenericRepository<Contract>
-    //{
-    //}
+    public interface IContractRepository : IGenericRepository<Contract>
+    {
+        Task<ContractResponseDto?> GetContractWithPaymentsAsync(Guid contractId, CancellationToken ct);
+        Task<ContractBasicResponseDto?> GetActiveContractsByUnitIdAsync(Guid unitId, CancellationToken ct);
+        Task<IReadOnlyList<ContractBasicResponseDto?>> GetBasicContractsForTenantAsync(CancellationToken ct); 
+
+        
+    }
 }

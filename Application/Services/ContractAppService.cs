@@ -1,28 +1,150 @@
-﻿//using Application.Common.Interfaces;
-//using Application.Dto.Contract;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using Application.Common.Interfaces;
+using Application.Dto.Contract;
+using Domain.Entities;
+using Domain.Enums;
 
-//namespace Application.Services
-//{
-//    public class ContractAppService: IContractAppService
-//    {
-//        private readonly IContractAppService _contractAppService;
-//        private readonly IUnitOfWork _unitOfWork;
-//        private readonly IUnitAppService _unitAppService;
-        
-//        public ContractAppService(IContractAppService _contractAppService, IUnitOfWork _unitOfWork)
-//        {
-//            this._contractAppService = _contractAppService;
-//            this._unitOfWork = _unitOfWork;
-//        }
 
-//        public async Task<Guid> CreateContractAsync(CreateContractDto dto, CancellationToken ct)
-//        {
-//            if(_unitAppService.GetByIdAsync(dto.UnitId))
-//        }
-//    }
-//}
+namespace Application.Services
+{
+    public class ContractAppService : IContractAppService
+    {
+        private readonly IContractRepository _contractRepo;
+        private readonly IGenericRepository<Unit> _unitRepo;
+        private readonly IRenterRepository _renterRepo;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ContractAppService(
+            IContractRepository contractRepo,
+            IGenericRepository<Unit> unitRepo,
+            IRenterRepository renterRepo,
+            IUnitOfWork unitOfWork)
+        {
+            _contractRepo = contractRepo;
+            _unitRepo = unitRepo;
+            _renterRepo = renterRepo;
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<Guid> CreateContractAsync(CreateContractDto dto, CancellationToken ct)
+        {
+            var unit = await _unitRepo.GetByIdAsync(dto.UnitId, ct);
+            if (unit == null || unit.UnitStatus != UnitStatus.Available)
+            {
+                throw new InvalidOperationException("Unit not found or not available for rent.");
+            }
+
+            var renterExists = await _renterRepo.AnyAsync(r => r.Id == dto.RenterId, ct);
+            if (!renterExists)
+            {
+                throw new KeyNotFoundException("Renter not found.");
+            }
+
+            var contract = new Contract
+            {
+                Id = Guid.NewGuid(),
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                RentAmount = dto.RentAmount,
+                UnitId = dto.UnitId,
+                RenterId = dto.RenterId,
+                PaymentFreq = dto.PaymentFreq,
+                ContractStatus = ContractStatus.Active,
+                Payments = new List<Payment>()
+            };
+
+
+            GeneratePaymentSchedule(contract, (byte)dto.PaymentFreq);
+
+            unit.UnitStatus = UnitStatus.Rented;
+            _unitRepo.Update(unit);
+
+            _contractRepo.Add(contract);
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            return contract.Id;
+        }
+
+
+        private void GeneratePaymentSchedule(Contract contract, byte intervalInMonths)
+        {
+
+            int totalMonths = ((contract.EndDate.Year - contract.StartDate.Year) * 12) + contract.EndDate.Month - contract.StartDate.Month;
+
+            int numberOfInstallments = totalMonths / intervalInMonths;
+
+            decimal amountPerInstallment = Math.Round(contract.RentAmount / numberOfInstallments, 2);
+            decimal totalAllocated = 0;
+
+            for (int i = 1; i <= numberOfInstallments; i++)
+            {
+                decimal currentAmount = (i == numberOfInstallments) ? (contract.RentAmount - totalAllocated) : amountPerInstallment;
+
+                contract.Payments.Add(new Payment
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = currentAmount,
+                    DueDate = contract.StartDate.AddMonths((i - 1) * intervalInMonths),
+                    PaymentStatus = PaymentStatus.Pending,
+                    ContractId = contract.Id,
+                });
+
+                totalAllocated += currentAmount;
+            }
+        }
+
+        public async Task<ContractResponseDto?> GetContractWithPaymentsAsync(Guid contractId, CancellationToken ct)
+        {
+            var Contract = await _contractRepo.GetContractWithPaymentsAsync(contractId, ct);
+            if (Contract == null)
+            {
+                throw new KeyNotFoundException("Contract not found.");
+            }
+            return new ContractResponseDto
+            {
+                Id = contractId,
+                StartDate = Contract.StartDate,
+                EndDate = Contract.EndDate,
+                RentAmount = Contract.RentAmount,
+                ContractStatus = Contract.ContractStatus,
+                UnitId = Contract.UnitId,
+                RenterId = Contract.RenterId,
+                Payments = Contract.Payments.Select(p => new PaymentResponseDto
+                {
+                    Id = p.Id,
+                    Amount = p.Amount,
+                    DueDate = p.DueDate,
+                    PaymentDate = p.PaymentDate,
+                    PaymentStatus = p.PaymentStatus
+                }).OrderBy(p => p.DueDate).ToList()
+
+            };
+        }
+
+
+        public async Task<IReadOnlyList<ContractBasicResponseDto>> GetBasicContractsForTenantAsync(CancellationToken ct)
+        {
+            var contracts = await _contractRepo.GetBasicContractsForTenantAsync(ct);
+
+            // الميدل وير سيمسك هذا الاستثناء ويحوله لـ 404
+            if (contracts == null || !contracts.Any())
+            {
+                throw new KeyNotFoundException("No contracts found for this tenant.");
+            }
+
+            return contracts;
+        }
+
+        public async Task<ContractBasicResponseDto> GetActiveContractByUnitId(Guid unitId, CancellationToken ct)
+        {
+            var contract = await _contractRepo.GetActiveContractsByUnitIdAsync(unitId, ct);
+
+            if (contract == null)
+            {
+                throw new KeyNotFoundException("No active contract found for this unit.");
+            }
+
+            return contract;
+        }
+
+    }
+}
