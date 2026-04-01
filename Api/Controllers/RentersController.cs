@@ -1,5 +1,4 @@
 ﻿using Application.Common.Interfaces;
-using Application.Dto.Contract;
 using Application.Dto.Renter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

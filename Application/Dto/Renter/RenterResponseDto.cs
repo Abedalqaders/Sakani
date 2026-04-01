@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Dto.Contract
+namespace Application.Dto.Renter
 {
     public class RenterResponseDto
     {

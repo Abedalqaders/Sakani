@@ -1,5 +1,4 @@
-﻿using Application.Dto.Contract;
-using Application.Dto.Renter;
+﻿using Application.Dto.Renter;
 using System;
 using System.Collections.Generic;
 using System.Linq;

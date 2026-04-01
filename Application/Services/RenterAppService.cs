@@ -1,5 +1,4 @@
 ﻿using Application.Common.Interfaces;
-using Application.Dto.Contract;
 using Application.Dto.Renter;
 using Domain.Entities;
 using System.Linq;
@@ -34,6 +33,8 @@ namespace Application.Services
                 NationalId = dto.NationalId,
                 PhoneNumber = dto.PhoneNumber,
                 Description = dto.Description ?? string.Empty,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
                 // UserId is null for now until you integrate Identity
             };
 
@@ -53,6 +54,7 @@ namespace Application.Services
                 NationalId = r.NationalId,
                 PhoneNumber = r.PhoneNumber,
                 Description = r.Description,
+                FullName =r.FirstName + " " + r.LastName,
                 UserId = r.UserId
             }).ToList();
         }
@@ -66,6 +68,7 @@ namespace Application.Services
                 NationalId = r.NationalId,
                 PhoneNumber = r.PhoneNumber,
                 Description = r.Description,
+                FullName = r.FirstName + " " + r.LastName,
                 UserId = r.UserId
             };
         }

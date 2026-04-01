@@ -9,6 +9,8 @@ namespace Domain.Entities
 {
     public class Renter:TenantEntity
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string NationalId { get; set; }
         public string PhoneNumber { get; set;}
         public  Guid?  UserId { set; get; }
@@ -16,5 +18,6 @@ namespace Domain.Entities
 
         public User User { get; set;}
         public ICollection<Contract> Contracts { get; set; }
+
     }
 }

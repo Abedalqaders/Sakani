@@ -175,6 +175,8 @@ public static class DbInitializer
             await context.Renters.AddAsync(new Renter
             {
                 Id = renter1Id,
+                FirstName="Mohhmad",
+                LastName="Alaio",
                 NationalId = "9901012345",
                 PhoneNumber = "0790000001",
                 Description = "Reliable tenant, works at Arab Bank",
@@ -205,6 +207,8 @@ public static class DbInitializer
             await context.Renters.AddAsync(new Renter
             {
                 Id = renter2Id,
+                FirstName = "AbedAlqader",
+                LastName = "Alsadi",
                 NationalId = "9952025566",
                 PhoneNumber = "0780000002",
                 Description = "Commercial tenant for Zarqa center",
