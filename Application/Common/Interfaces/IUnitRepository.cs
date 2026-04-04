@@ -11,7 +11,8 @@ namespace Application.Common.Interfaces
     {
         Task<IReadOnlyList<Unit>> GetAllWithPropertyAsync(CancellationToken ct);
         Task<Unit?> GetByIdWithPropertyAsync(Guid id, CancellationToken ct);
-         Task<IReadOnlyList<Unit>> GetUnitsByPropertyAsync(Guid propertyId, CancellationToken ct);
+        Task<IReadOnlyList<Unit>> GetUnitsByPropertyAsync(Guid propertyId, CancellationToken ct);
+        Task<decimal> GetOccupancyRateAsync(CancellationToken ct);
 
     }
 }

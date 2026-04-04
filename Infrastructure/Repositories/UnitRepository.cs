@@ -1,5 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -33,5 +34,23 @@ namespace Infrastructure.Repositories
                 .Include(u => u.Property)
                 .FirstOrDefaultAsync(u => u.Id == id, ct);
         }
+        public async Task<decimal> GetOccupancyRateAsync(CancellationToken ct)
+        {
+       
+            var stats = await _context.Units
+                .AsNoTracking()
+                .GroupBy(_ => 1) 
+                .Select(g => new
+                {
+                    Total = g.Count(),
+                    Rented = g.Count(u => u.UnitStatus == UnitStatus.Rented)
+                })
+                .FirstOrDefaultAsync(ct);
+
+            if (stats == null || stats.Total == 0) return 0m;
+
+            return Math.Round((decimal)stats.Rented / stats.Total * 100, 2);
+        }
+
     }
 }

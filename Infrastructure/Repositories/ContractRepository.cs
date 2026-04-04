@@ -75,5 +75,11 @@ namespace Infrastructure.Repositories
                 })
                 .ToListAsync(ct);
         }
+        public async Task<Contract?> GetContractWithUnitAsync(Guid contractId, CancellationToken ct)
+        {
+            return await _context.Set<Contract>()
+                                 .Include(c => c.Unit)
+                                 .FirstOrDefaultAsync(c => c.Id == contractId, ct);
+        }
     }
 }

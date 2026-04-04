@@ -29,11 +29,11 @@ namespace Application.Validators.Contract
                 .NotEmpty().WithMessage("A Renter must be selected.");
 
             // 4. Enum Validation
-            RuleFor(x => x.ContractStatus)
-                .IsInEnum().WithMessage("Invalid contract status.");
+            RuleFor(x => (int)x.ContractStatus).Must(val => Enum.IsDefined(typeof(ContractStatus), (byte)val))
+           .WithMessage("Invalid Contract Status status.");
 
-            RuleFor(x => x.PaymentFreq)
-                .IsInEnum().WithMessage("Invalid payment frequency.");
+            RuleFor(x => (int)x.PaymentFreq).Must(val => Enum.IsDefined(typeof(PaymentFrequency), (byte)val))
+           .WithMessage("Invalid Payment Freq status.");
 
             // 5. Advanced Business Rule: Duration Compatibility
             // Ensures the total months can be divided evenly by the payment interval.

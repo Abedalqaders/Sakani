@@ -2,6 +2,9 @@
 using Domain.Enums;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public static class DbInitializer
 {
@@ -20,7 +23,7 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        // 2. إنشاء الـ SuperAdmin (أدمن النظام بالكامل)
+        // 2. إنشاء الـ SuperAdmin
         if (!await context.Users.AnyAsync(u => u.Email == "super@sakani.com"))
         {
             var superAdmin = new User
@@ -29,8 +32,8 @@ public static class DbInitializer
                 Name = "The Boss",
                 Email = "super@sakani.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Super@123"),
-                RoleId = 1, // SuperAdmin
-                TenantId = null, // لا يتبع لشركة معينة
+                RoleId = 1,
+                TenantId = null,
                 CreatedAt = DateTime.UtcNow
             };
             await context.Users.AddAsync(superAdmin);
@@ -40,7 +43,6 @@ public static class DbInitializer
         var tenant1Id = Guid.Parse("d28888e9-2ba9-473a-a40f-e38cb54f9b35");
         var tenant2Id = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479");
 
-        // الشركة الأولى: Amman Real Estate
         if (!await context.Tenants.AnyAsync(t => t.Id == tenant1Id))
         {
             await context.Tenants.AddAsync(new Tenant
@@ -56,7 +58,6 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
 
-            // مدير الشركة الأولى
             await context.Users.AddAsync(new User
             {
                 Id = Guid.NewGuid(),
@@ -69,7 +70,6 @@ public static class DbInitializer
             });
         }
 
-        // الشركة الثانية: Zarqa Properties
         if (!await context.Tenants.AnyAsync(t => t.Id == tenant2Id))
         {
             await context.Tenants.AddAsync(new Tenant
@@ -85,7 +85,6 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
 
-            // مدير الشركة الثانية
             await context.Users.AddAsync(new User
             {
                 Id = Guid.NewGuid(),
@@ -97,16 +96,17 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
+
         var ammanProp1Id = Guid.Parse("3a59cc1c-f8d9-4ba4-9c9b-7ee0f5283af5");
         var ammanProp2Id = Guid.Parse("c2ce1c24-a891-4e58-af66-c3c5a1faff90");
         var zarqaPropId = Guid.Parse("4352708a-0656-404a-9475-da2622205340");
 
-        // إضافة عقارات عمان
+        // 4. إضافة العقارات
         if (!await context.Properties.IgnoreQueryFilters().AnyAsync(p => p.Id == ammanProp1Id))
         {
             await context.Properties.AddAsync(new Property
             {
-                Id = ammanProp1Id, // ثبتنا الـ ID هون
+                Id = ammanProp1Id,
                 Name = "Abdali Gateway Tower",
                 City = "Amman",
                 AddressRegion = "Abdali",
@@ -122,7 +122,7 @@ public static class DbInitializer
         {
             await context.Properties.AddAsync(new Property
             {
-                Id = ammanProp2Id, // ثبتنا الـ ID هون
+                Id = ammanProp2Id,
                 Name = "Jabal Amman Luxury Suites",
                 City = "Amman",
                 AddressRegion = "Jabal Amman",
@@ -134,12 +134,11 @@ public static class DbInitializer
             });
         }
 
-        // إضافة عقار الزرقاء
         if (!await context.Properties.IgnoreQueryFilters().AnyAsync(p => p.Id == zarqaPropId))
         {
             await context.Properties.AddAsync(new Property
             {
-                Id = zarqaPropId, // ثبتنا الـ ID هون
+                Id = zarqaPropId,
                 Name = "Zarqa Commercial Center",
                 City = "Zarqa",
                 AddressRegion = "New Zarqa",
@@ -150,48 +149,42 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
-        // 4. تعريف المستأجرين (Renters)
+
+        // 5. تعريف المستأجرين (Renters)
         var renter1Id = Guid.Parse("7a123456-1111-2222-3333-444455556666");
         var renter2Id = Guid.Parse("8b123456-2222-3333-4444-555566667777");
 
-        // مستأجر تابع لشركة عمان (Amman Real Estate)
         if (!await context.Renters.IgnoreQueryFilters().AnyAsync(r => r.Id == renter1Id))
         {
             var renterUser1Id = Guid.NewGuid();
-
-            // إنشاء حساب مستخدم للمستأجر أولاً
             await context.Users.AddAsync(new User
             {
                 Id = renterUser1Id,
                 Name = "Omar Renter",
                 Email = "omar@gmail.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Renter@123"),
-                RoleId = 3, // Renter Role
-                TenantId = tenant1Id, // يتبع لنفس شركة العقارات
+                RoleId = 3,
+                TenantId = tenant1Id,
                 CreatedAt = DateTime.UtcNow
             });
 
-            // إنشاء بيانات المستأجر
             await context.Renters.AddAsync(new Renter
             {
                 Id = renter1Id,
-                FirstName="Mohhmad",
-                LastName="Alaio",
+                FirstName = "Mohhmad",
+                LastName = "Alaio",
                 NationalId = "9901012345",
                 PhoneNumber = "0790000001",
                 Description = "Reliable tenant, works at Arab Bank",
                 UserId = renterUser1Id,
-                TenantId = tenant1Id, // عزل البيانات
+                TenantId = tenant1Id,
                 CreatedAt = DateTime.UtcNow
             });
         }
 
-        // مستأجر تابع لشركة الزرقاء (Zarqa Properties)
         if (!await context.Renters.IgnoreQueryFilters().AnyAsync(r => r.Id == renter2Id))
         {
             var renterUser2Id = Guid.NewGuid();
-
-            // حساب المستخدم
             await context.Users.AddAsync(new User
             {
                 Id = renterUser2Id,
@@ -203,7 +196,6 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
 
-            // بيانات المستأجر
             await context.Renters.AddAsync(new Renter
             {
                 Id = renter2Id,
@@ -217,11 +209,12 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
         }
-        // تعريف IDs الوحدات
+
+        // 6. تعريف الوحدات (Units)
         var unit1Id = Guid.Parse("11111111-2222-3333-4444-555566667777");
         var unit2Id = Guid.Parse("22222222-3333-4444-5555-666677778888");
+        var unit3Id = Guid.Parse("33333333-4444-5555-6666-777788889999");
 
-        // إضافة وحدات لعقارات عمان
         if (!await context.Units.IgnoreQueryFilters().AnyAsync(u => u.Id == unit1Id))
         {
             await context.Units.AddAsync(new Unit
@@ -230,7 +223,7 @@ public static class DbInitializer
                 UnitNo = "A-101",
                 Floor = "First",
                 RentPrice = 500,
-                Area = "120", // تمت إضافة الحقل المفقود هنا
+                Area = "120",
                 PropertyId = ammanProp1Id,
                 UnitStatus = UnitStatus.Rented,
                 TenantId = tenant1Id,
@@ -238,46 +231,6 @@ public static class DbInitializer
             });
         }
 
-        // إضافة عقد للمستأجر عمر في عمان
-        var contract1Id = Guid.Parse("99999999-8888-7777-6666-555544443333");
-        if (!await context.Contracts.IgnoreQueryFilters().AnyAsync(c => c.Id == contract1Id))
-        {
-            var contract1 = new Contract
-            {
-                Id = contract1Id,
-                StartDate = DateTime.UtcNow.AddMonths(-1), // بدأ قبل شهر
-                EndDate = DateTime.UtcNow.AddMonths(11),   // ينتهي بعد سنة
-                RentAmount = 6000, // إجمالي السنة
-                PaymentFreq = PaymentFrequency.Monthly,
-                ContractStatus = ContractStatus.Active,
-                UnitId = unit1Id,
-                RenterId = renter1Id,
-                TenantId = tenant1Id,
-                CreatedAt = DateTime.UtcNow,
-                Payments = new List<Payment>()
-            };
-
-            // توليد 12 دفعة يدوياً لهذا العقد لاختبار الـ GetContractWithPayments
-            for (int i = 0; i < 12; i++)
-            {
-                contract1.Payments.Add(new Payment
-                {
-                    Id = Guid.NewGuid(),
-                    Amount = 500,
-                    DueDate = contract1.StartDate.AddMonths(i),
-                    PaymentStatus = i == 0 ? PaymentStatus.Paid : PaymentStatus.Pending, // أول دفعة مدفوعة
-                    PaymentDate = i == 0 ? DateTime.UtcNow.AddMonths(-1) : null,
-                    TenantId = tenant1Id,
-                    CreatedAt = DateTime.UtcNow
-                });
-            }
-            await context.Contracts.AddAsync(contract1);
-        }
-
-        
-
-
-        // إضافة وحدة ثانية في الزرقاء
         if (!await context.Units.IgnoreQueryFilters().AnyAsync(u => u.Id == unit2Id))
         {
             await context.Units.AddAsync(new Unit
@@ -288,11 +241,134 @@ public static class DbInitializer
                 RentPrice = 1200,
                 Area = "250",
                 PropertyId = zarqaPropId,
-                UnitStatus = UnitStatus.Available,
+                UnitStatus = UnitStatus.Rented, // تم التعديل لأنها سترتبط بعقد
                 TenantId = tenant2Id,
                 CreatedAt = DateTime.UtcNow
             });
         }
+
+        if (!await context.Units.IgnoreQueryFilters().AnyAsync(u => u.Id == unit3Id))
+        {
+            await context.Units.AddAsync(new Unit
+            {
+                Id = unit3Id,
+                UnitNo = "B-202",
+                Floor = "Second",
+                RentPrice = 450,
+                Area = "110",
+                PropertyId = ammanProp1Id,
+                UnitStatus = UnitStatus.Available, // وحدة فارغة لاختبار نسبة الإشغال
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        // 7. العقود والدفعات (Contracts & Payments)
+        var contract1Id = Guid.Parse("99999999-8888-7777-6666-555544443333");
+        if (!await context.Contracts.IgnoreQueryFilters().AnyAsync(c => c.Id == contract1Id))
+        {
+            var contract1 = new Contract
+            {
+                Id = contract1Id,
+                StartDate = DateTime.UtcNow.AddMonths(-1),
+                EndDate = DateTime.UtcNow.AddMonths(11),
+                RentAmount = 6000,
+                PaymentFreq = PaymentFrequency.Monthly,
+                ContractStatus = ContractStatus.Active,
+                UnitId = unit1Id,
+                RenterId = renter1Id,
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow,
+                Payments = new List<Payment>()
+            };
+
+            for (int i = 0; i < 12; i++)
+            {
+                contract1.Payments.Add(new Payment
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = 500,
+                    DueDate = contract1.StartDate.AddMonths(i),
+                    PaymentStatus = i == 0 ? PaymentStatus.Paid : PaymentStatus.Pending,
+                    PaymentDate = i == 0 ? DateTime.UtcNow.AddMonths(-1) : null,
+                    TenantId = tenant1Id,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+            await context.Contracts.AddAsync(contract1);
+        }
+
+        var contract2Id = Guid.Parse("77777777-6666-5555-4444-333322221111");
+        if (!await context.Contracts.IgnoreQueryFilters().AnyAsync(c => c.Id == contract2Id))
+        {
+            var contract2 = new Contract
+            {
+                Id = contract2Id,
+                StartDate = DateTime.UtcNow.AddDays(-40),
+                EndDate = DateTime.UtcNow.AddMonths(5),
+                RentAmount = 7200,
+                PaymentFreq = PaymentFrequency.Monthly,
+                ContractStatus = ContractStatus.Active,
+                UnitId = unit2Id,
+                RenterId = renter2Id,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow,
+                Payments = new List<Payment>()
+            };
+
+            // دفعة أولى مدفوعة
+            contract2.Payments.Add(new Payment
+            {
+                Id = Guid.NewGuid(),
+                Amount = 1200,
+                DueDate = contract2.StartDate,
+                PaymentStatus = PaymentStatus.Paid,
+                PaymentDate = contract2.StartDate.AddDays(1),
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            // دفعة ثانية متأخرة (لاختبار النظام)
+            contract2.Payments.Add(new Payment
+            {
+                Id = Guid.NewGuid(),
+                Amount = 1200,
+                DueDate = DateTime.UtcNow.AddDays(-10), // استُحقت قبل 10 أيام
+                PaymentStatus = PaymentStatus.Pending,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            // دفعة ثالثة متوقعة (مستقبلية)
+            contract2.Payments.Add(new Payment
+            {
+                Id = Guid.NewGuid(),
+                Amount = 1200,
+                DueDate = DateTime.UtcNow.AddDays(20),
+                PaymentStatus = PaymentStatus.Pending,
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await context.Contracts.AddAsync(contract2);
+        }
+
+        // حفظ جميع الكيانات المدخلة
         await context.SaveChangesAsync();
+
+        // 8. تحديث الدفعات المتأخرة برمجياً
+        var expiredPendingPayments = await context.Set<Payment>()
+            .IgnoreQueryFilters()
+            .Where(p => p.PaymentStatus == PaymentStatus.Pending && p.DueDate < DateTime.UtcNow)
+            .ToListAsync();
+
+        if (expiredPendingPayments.Count > 0)
+        {
+            foreach (var payment in expiredPendingPayments)
+            {
+                payment.PaymentStatus = PaymentStatus.Overdue;
+            }
+            await context.SaveChangesAsync();
+        }
     }
 }

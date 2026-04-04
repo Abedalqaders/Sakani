@@ -8,21 +8,25 @@ namespace Application.Services
 {
     public class ContractAppService : IContractAppService
     {
+        
         private readonly IContractRepository _contractRepo;
         private readonly IGenericRepository<Unit> _unitRepo;
         private readonly IRenterRepository _renterRepo;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPaymentRepository _paymentRepo;
 
         public ContractAppService(
             IContractRepository contractRepo,
             IGenericRepository<Unit> unitRepo,
             IRenterRepository renterRepo,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IPaymentRepository paymentRepo)
         {
             _contractRepo = contractRepo;
             _unitRepo = unitRepo;
             _renterRepo = renterRepo;
             _unitOfWork = unitOfWork;
+            _paymentRepo = paymentRepo;
         }
 
         public async Task<Guid> CreateContractAsync(CreateContractDto dto, CancellationToken ct)
@@ -64,7 +68,34 @@ namespace Application.Services
             return contract.Id;
         }
 
+        public async Task<Guid> TerminateContractAsync(Guid contractId, CancellationToken ct)
+        {
+            var contract = await _contractRepo.GetContractWithUnitAsync(contractId, ct);
+            if (contract == null)
+            {
+                throw new KeyNotFoundException("Contract not found.");
+            }
 
+            if (contract.ContractStatus != ContractStatus.Active)
+            {
+                throw new InvalidOperationException("Only active contracts can be terminated.");
+            }
+
+            contract.ContractStatus = ContractStatus.Terminated;
+            contract.EndDate = DateTime.UtcNow;
+            _contractRepo.Update(contract);
+
+            if (contract.Unit!=null)
+            {
+                contract.Unit.UnitStatus = UnitStatus.Available;
+                _unitRepo.Update(contract.Unit);
+            }
+
+            await _paymentRepo.CancelPaymentForContract(contractId, ct);
+
+            await _unitOfWork.SaveChangesAsync(ct);
+            return contract.Id;
+        }
         private void GeneratePaymentSchedule(Contract contract, byte intervalInMonths)
         {
 

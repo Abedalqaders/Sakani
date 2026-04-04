@@ -44,4 +44,10 @@ public class ContractController : ControllerBase
         var contract = await _contractAppService.GetActiveContractByUnitId(unitId, ct);
         return Ok(contract);
     }
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult<Guid>> Terminate(Guid id, CancellationToken ct)
+    {
+        var contractId = await _contractAppService.TerminateContractAsync(id, ct);
+        return Ok(contractId);
+    }
 }
