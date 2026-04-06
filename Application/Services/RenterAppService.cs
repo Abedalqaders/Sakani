@@ -54,7 +54,8 @@ namespace Application.Services
                 NationalId = r.NationalId,
                 PhoneNumber = r.PhoneNumber,
                 Description = r.Description,
-                FullName =r.FirstName + " " + r.LastName,
+                FirstName=r.FirstName,
+                LastName = r.LastName,
                 UserId = r.UserId
             }).ToList();
         }
@@ -68,7 +69,8 @@ namespace Application.Services
                 NationalId = r.NationalId,
                 PhoneNumber = r.PhoneNumber,
                 Description = r.Description,
-                FullName = r.FirstName + " " + r.LastName,
+                FirstName = r.FirstName,
+                LastName = r.LastName,
                 UserId = r.UserId
             };
         }
