@@ -1,4 +1,6 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.General;
+using Application.Common.Interfaces.Property;
+using Application.Common.Interfaces.Unit;
 using Application.Dto.Unit;
 using Domain.Entities;
 using System;

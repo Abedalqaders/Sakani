@@ -3,11 +3,11 @@ services:
     image: postgres:16-alpine
     container_name: realestate_postgres
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: MyUser
       POSTGRES_PASSWORD: MyPassword1234
       POSTGRES_DB: Sakani
     ports:
-      - "5432:5432"
+      - "5001:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

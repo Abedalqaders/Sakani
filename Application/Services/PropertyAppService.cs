@@ -1,7 +1,8 @@
-﻿using Application.Common.Interfaces;
-using System;
+﻿using System;
 using Application.Dto.Property;
 using Domain.Entities;
+using Application.Common.Interfaces.Property;
+using Application.Common.Interfaces.General;
 namespace Application.Services
 {
     public class PropertyAppService : IPropertyAppService

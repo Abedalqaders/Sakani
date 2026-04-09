@@ -1,5 +1,4 @@
-﻿using Application.Common.Interfaces;
-
+﻿using Application.Common.Interfaces.User;
 using System.Security.Claims;
 
 namespace Api.Services;

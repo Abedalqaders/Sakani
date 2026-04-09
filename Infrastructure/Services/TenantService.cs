@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
+using Application.Common.Interfaces.Tenant;
 using Microsoft.AspNetCore.Http;
-using Sakani.Application.Common.Interfaces;
 
 namespace Sakani.Infrastructure.Services;
 

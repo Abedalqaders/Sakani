@@ -1,7 +1,7 @@
 ﻿using Application.Dto.Payment;
 
 
-namespace Application.Common.Interfaces
+namespace Application.Common.Interfaces.Accounting
 {
     public interface IAccountingRepository
     {

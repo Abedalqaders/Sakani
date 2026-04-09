@@ -1,19 +1,23 @@
 ﻿namespace Infrastructure
 {
-    using Application.Common.Interfaces;
+    using Application.Common.Interfaces.User;
+    using Application.Common.Interfaces.Tenant;
     using Domain.Common;
     using Domain.Entities;
     using Domain.Enums;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-    using Sakani.Application.Common.Interfaces;
 
     public class ApplicationDbContext : DbContext
     {
         private readonly Guid? _tenantId;
         private readonly ICurrentUserService _currentUserService;
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService, ICurrentUserService currentUser)
-         : base(options)
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            ITenantService tenantService,
+            ICurrentUserService currentUser)
+            : base(options)
         {
             _currentUserService = currentUser;
             _tenantId = tenantService.GetTenantId();
@@ -48,10 +52,12 @@
             modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
             modelBuilder.Entity<MaintenanceTicket>().HasQueryFilter(m => m.TenantId == _tenantId && !m.IsDeleted);
             modelBuilder.Entity<Image>().HasQueryFilter(i => i.TenantId == _tenantId && !i.IsDeleted);
+
             // فلاتر Soft Delete التي لا تعتمد على TenantId
             modelBuilder.Entity<Tenant>().HasQueryFilter(t => !t.IsDeleted);
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
         }
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())
@@ -93,4 +99,4 @@
             return base.SaveChangesAsync(cancellationToken);
         }
     }
-    }
+}

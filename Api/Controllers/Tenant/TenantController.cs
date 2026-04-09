@@ -1,9 +1,8 @@
 ﻿using Api.Controllers;
-using Application.Common.Interfaces;
+using Application.Common.Interfaces.Tenant;
 using Application.Dto.Tenant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sakani.Application.Common.Interfaces;
 
 namespace Sakani.API.Controllers;
 

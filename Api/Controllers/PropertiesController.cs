@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.Property;
 using Application.Dto.Property;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;

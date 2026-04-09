@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.General;
 using Infrastructure;
 using System.Threading;
 using System.Threading.Tasks;

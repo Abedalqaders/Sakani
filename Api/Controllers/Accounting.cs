@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.Accounting;
 using Application.Dto.Payment;
 using Microsoft.AspNetCore.Mvc;
 

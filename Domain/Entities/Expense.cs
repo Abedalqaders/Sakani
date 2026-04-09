@@ -11,11 +11,13 @@ namespace Domain.Entities
     public class Expense: TenantEntity
     {
         public Guid PropertyId { get; set; }
+        public Guid? UnitId { get; set; }
         public decimal Amount { get; set; }
         public ExpenseType  ExpenseType { get; set; }
         public DateTime ExpenseDate { get; set; }
 
         // Navigation Properties
+        public  Unit Unit { get; set; }
         public Property Property { get; set; }
     }
 }

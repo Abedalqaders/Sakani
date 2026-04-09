@@ -1,6 +1,7 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.General;
+using Application.Common.Interfaces.Tenant;
 using Application.Dto.Tenant;
-using Sakani.Application.Common.Interfaces;
+using Domain.Entities;
 
 
 namespace Sakani.Application.Services;

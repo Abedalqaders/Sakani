@@ -1,4 +1,4 @@
-﻿namespace Sakani.Application.Common.Interfaces;
+﻿namespace Application.Common.Interfaces.Tenant;
 
 public interface ITenantService
 {

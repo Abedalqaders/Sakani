@@ -39,7 +39,9 @@ public class AuthController : ControllerBase
 
         // 4. توليد الـ JWT
         var token = _tokenService.CreateToken(user);
+        user.LastLogin = DateTime.UtcNow;
 
+        await _context.SaveChangesAsync();
         // 5. إرجاع الـ Token للفرونت إند
         return Ok(new
         {

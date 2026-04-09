@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Common.Interfaces
+namespace Application.Common.Interfaces.Tenant
 {
     public interface ITenantAppService
     {

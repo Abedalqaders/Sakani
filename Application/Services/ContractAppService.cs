@@ -1,4 +1,7 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.Contract;
+using Application.Common.Interfaces.General;
+using Application.Common.Interfaces.Payment;
+using Application.Common.Interfaces.Renter;
 using Application.Dto.Contract;
 using Domain.Entities;
 using Domain.Enums;
