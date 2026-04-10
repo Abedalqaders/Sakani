@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Common.Interfaces.General;
 using Application.Services;
 using Application.Validators.Tenant;
 using FluentValidation;
@@ -11,8 +12,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Models;
-using Sakani.Application.Common.Interfaces;
 using Sakani.Application.Services;
 using Sakani.Infrastructure.Services;
 using System.Reflection;
@@ -90,7 +89,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.Scan(scan => scan
     .FromAssemblies(
         // نستخدم كلاسات معروفة من كل مشروع لنجلب الـ Assembly الخاص بها
-        typeof(Application.Common.Interfaces.ICurrentUserService).Assembly,
+        typeof(Application.Common.Interfaces.User.ICurrentUserService).Assembly,
         typeof(Infrastructure.ApplicationDbContext).Assembly,
         System.Reflection.Assembly.GetExecutingAssembly() // مشروع الـ Api نفسه
     )
