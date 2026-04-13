@@ -5,23 +5,20 @@ using Application.Validators.Tenant;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Sakani.Application.Services;
-using Sakani.Infrastructure.Services;
-using System.Reflection;
 using System.Text;
+
+using InfrastructureUnitOfWork = Infrastructure.Repositories.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-
 
 // Configure CORS: permissive in Development, restricted in Production
 if (builder.Environment.IsDevelopment())
@@ -108,13 +105,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
            .UseSnakeCaseNamingConvention());
 
 
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("Missing configuration: Jwt:Key");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidateAudience = true,
@@ -122,6 +122,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true
         };
     });
+
 builder.Services.AddSingleton<IAuthorizationHandler, TenantOwnershipHandler>();
 
 builder.Services.AddAuthorization(options =>
@@ -131,7 +132,7 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTenantDtoValidator>();
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, InfrastructureUnitOfWork>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
