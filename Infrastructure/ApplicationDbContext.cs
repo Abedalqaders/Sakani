@@ -30,7 +30,7 @@
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<MaintenanceTicket> MaintenanceTickets { get; set; }
-        public DbSet<Image> Images { get; set; }
+        public DbSet<TicketImage> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,7 +47,7 @@
             modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantId && !e.IsDeleted);
             modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
             modelBuilder.Entity<MaintenanceTicket>().HasQueryFilter(m => m.TenantId == _tenantId && !m.IsDeleted);
-            modelBuilder.Entity<Image>().HasQueryFilter(i => i.TenantId == _tenantId && !i.IsDeleted);
+            modelBuilder.Entity<TicketImage>().HasQueryFilter(i => i.TenantId == _tenantId && !i.IsDeleted);
             // فلاتر Soft Delete التي لا تعتمد على TenantId
             modelBuilder.Entity<Tenant>().HasQueryFilter(t => !t.IsDeleted);
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);

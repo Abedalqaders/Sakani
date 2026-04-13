@@ -9,5 +9,6 @@ namespace Application.Common.Interfaces
 {
     public interface IPropertyRepository : IGenericRepository<Property>
     {
+    
     }
 }

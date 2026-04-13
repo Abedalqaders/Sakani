@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Domain.Entities;
-public class ImageConfiguration : IEntityTypeConfiguration<Image>
+public class ImageConfiguration : IEntityTypeConfiguration<TicketImage>
 {
-    public void Configure(EntityTypeBuilder<Image> builder)
+    public void Configure(EntityTypeBuilder<TicketImage> builder)
     {
         builder.Property(i => i.ImagePath).IsRequired().HasMaxLength(500);
 

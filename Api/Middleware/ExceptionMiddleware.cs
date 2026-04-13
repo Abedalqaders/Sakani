@@ -1,46 +1,64 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Text.Json;
 
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionMiddleware> _logger;
+    private readonly IHostEnvironment _env;
 
-    public ExceptionMiddleware(RequestDelegate next)
+    public ExceptionMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionMiddleware> logger,
+        IHostEnvironment env)
     {
         _next = next;
+        _logger = logger;
+        _env = env;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context); // كمل الطلب بشكل طبيعي
+            await _next(context);
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex); // إذا وقع خطأ، تعال هنا
+            // 1. تسجيل الخطأ في السيرفر عشان تقدر تراقبه
+            _logger.LogError(ex, "An unhandled exception occurred during the request.");
+
+            await HandleExceptionAsync(context, ex, _env);
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception, IHostEnvironment env)
     {
         context.Response.ContentType = "application/json";
 
-        // هون بنحدد الـ Status Code بناءً على نوع الخطأ
         context.Response.StatusCode = exception switch
         {
             InvalidOperationException => (int)HttpStatusCode.BadRequest,
-            KeyNotFoundException => (int)HttpStatusCode.NotFound,      // 404
-            UnauthorizedAccessException => (int)HttpStatusCode.Forbidden, // 403
-            _ => (int)HttpStatusCode.InternalServerError              // 500
+            KeyNotFoundException => (int)HttpStatusCode.NotFound,
+            UnauthorizedAccessException => (int)HttpStatusCode.Forbidden,
+            _ => (int)HttpStatusCode.InternalServerError
         };
+
+        // 2. إخفاء تفاصيل الخطأ الحساسة في بيئة الإنتاج
+        var isDevelopment = env.IsDevelopment();
+        var isServerError = context.Response.StatusCode == 500;
 
         var response = new
         {
             StatusCode = context.Response.StatusCode,
-            Message = exception.Message,
-            Detail = exception.StackTrace?.ToString()
+            // إذا كان 500 وإحنا مش في بيئة التطوير، بنعطي رسالة عامة
+            Message = isServerError && !isDevelopment
+                        ? "An internal server error occurred. Please try again later."
+                        : exception.Message,
+            // الـ StackTrace بيطلع بس للمبرمج في بيئة التطوير
+            Detail = isDevelopment ? exception.StackTrace?.ToString() : null
         };
 
         return context.Response.WriteAsJsonAsync(response);

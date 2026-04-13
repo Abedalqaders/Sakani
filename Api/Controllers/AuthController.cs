@@ -1,4 +1,6 @@
-﻿using Application.Dto.Auth;
+﻿using Application.Common.Interfaces;
+using Application.Dto.Auth;
+using Domain.Entities;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +11,12 @@ public class AuthController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly TokenService _tokenService;
-
-    public AuthController(ApplicationDbContext context, TokenService tokenService)
+    private readonly IRenterRepository _renterRepository;
+    public AuthController(ApplicationDbContext context, TokenService tokenService, IRenterRepository renterRepository)
     {
         _context = context;
         _tokenService = tokenService;
+        _renterRepository = renterRepository;
     }
 
     [HttpPost("login")]
@@ -23,6 +26,7 @@ public class AuthController : ControllerBase
         var user = await _context.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == request.Email);
+       
 
         if (user == null)
         {
@@ -36,9 +40,18 @@ public class AuthController : ControllerBase
         {
             return Unauthorized("Invalid email or password.");
         }
+        Guid renterId = Guid.Empty;
+        if (user.Role.Name == "Renter") // تأكد إن الاسم هون بيطابق الاسم في الداتابيز
+        {
+            var renter = await _renterRepository.GetByUserIdAsync(user.Id);
+            renterId = renter?.Id ?? Guid.Empty;    
 
+            // حماية إضافية: لو الـ Role تبعه Renter بس ما إله بروفايل في جدول الـ Renters
+            if (renterId == Guid.Empty)
+                return Unauthorized("Renter profile not found.");
+        }
         // 4. توليد الـ JWT
-        var token = _tokenService.CreateToken(user);
+        var token = _tokenService.CreateToken(user, renterId);
 
         // 5. إرجاع الـ Token للفرونت إند
         return Ok(new

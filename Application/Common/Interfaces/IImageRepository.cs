@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Interfaces
 {
-    public interface IRenterRepository:IGenericRepository<Renter>
+    public interface IImageRepository: IGenericRepository<TicketImage>
     {
-        Task<Renter?> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
     }
 }
