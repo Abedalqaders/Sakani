@@ -22,4 +22,8 @@ public class CurrentUserService : ICurrentUserService
     }
     public Guid? TenantId =>
         Guid.TryParse(_httpContextAccessor.HttpContext?.User?.FindFirst("tenantId")?.Value, out var id) ? id : null;
+
+    public Guid? RenterId =>
+        Guid.TryParse(_httpContextAccessor.HttpContext?.User?.FindFirst("renterId")?.Value, out var id) ? id : null;
+
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Common.Interfaces;
+using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,13 +9,13 @@ using System.Text;
 public class TokenService
 {
     private readonly IConfiguration _config;
-
+    private readonly IRenterRepository _renterRepository;
     public TokenService(IConfiguration config)
     {
         _config = config;
     }
 
-    public string CreateToken(User user)
+    public string CreateToken(User user, Guid? renterId = null)
     {
         // 1. تعريف الـ Claims (البيانات المشفرة داخل التوكن)
         var claims = new List<Claim>
@@ -30,7 +31,15 @@ public class TokenService
         {
             claims.Add(new Claim("tenantId", user.TenantId.Value.ToString()));
         }
-
+     
+    
+        {
+        
+            if (renterId.HasValue)
+            {
+                claims.Add(new Claim("renterId", renterId.Value.ToString()));
+            }
+        }
         // 3. مفتاح التشفير من الـ appsettings.json
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

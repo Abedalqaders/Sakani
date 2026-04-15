@@ -10,6 +10,6 @@ namespace Application.Common.Interfaces.User
     {
         public Guid? UserId { get; }
         public Guid? TenantId { get; }
-    
+        Guid? RenterId { get; }
     }
 }

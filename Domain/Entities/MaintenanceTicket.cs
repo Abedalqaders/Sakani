@@ -2,32 +2,29 @@
 using Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Domain.Entities
 {
-    public class Image :TenantEntity
+    public class TicketImage : TenantEntity
     {
-        public string ImagePath { get; set; }
+        public string ImagePath { get; set; } = string.Empty;
         public Guid TicketId { get; set; }
 
         // Navigation Properties
-        public MaintenanceTicket Ticket { get; set; }
+        public MaintenanceTicket Ticket { get; set; } = null!;
     }
-    public class MaintenanceTicket:TenantEntity
+
+    public class MaintenanceTicket : TenantEntity
     {
         public Guid UnitId { get; set; }
         public Guid RenterId { get; set; }
-        public string Subject { get; set; }
-        public string Description { get; set; }
-        public TicketStatus TicketStatus { get; set; }
+        public string Subject { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public TicketStatus TicketStatus { get; set; } = TicketStatus.Open;
 
         // Navigation Properties
-        public Unit Unit { get; set; }
-        public Renter Renter { get; set; }
-        public ICollection<Image> Images { get; set; }
+        public Unit Unit { get; set; } = null!;
+        public Renter Renter { get; set; } = null!;
+        public ICollection<TicketImage> Images { get; set; } = new List<TicketImage>();
     }
 }

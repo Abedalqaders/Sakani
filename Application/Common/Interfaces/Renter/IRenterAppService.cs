@@ -12,5 +12,6 @@ namespace Application.Common.Interfaces.Renter
         Task<Guid> CreateAsync(CreateRenterDto dto, CancellationToken ct);
         Task<IReadOnlyList<RenterResponseDto>> GetAllAsync(CancellationToken ct);
         Task<RenterResponseDto?> GetByIdAsync(Guid id, CancellationToken ct);
+     
     }
 }

@@ -149,7 +149,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Expenses", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Image", b =>
+            modelBuilder.Entity("Domain.Entities.TicketImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -740,7 +740,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Image", b =>
+            modelBuilder.Entity("Domain.Entities.TicketImage", b =>
                 {
                     b.HasOne("Domain.Entities.MaintenanceTicket", "Ticket")
                         .WithMany("Images")

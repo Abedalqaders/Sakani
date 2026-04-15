@@ -15,12 +15,14 @@ namespace Application.Services
     {
         private readonly IRenterRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
+        
         public RenterAppService(IRenterRepository repository, IUnitOfWork unitOfWork)
         {
             _repository = repository;
             _unitOfWork = unitOfWork;
+        
         }
-
+       
         public async Task<Guid> CreateAsync(CreateRenterDto dto, CancellationToken ct)
         {
             var exists = await _repository.AnyAsync(r => r.NationalId == dto.NationalId, ct);

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Models;
+using Sakani.Application.Common.Interfaces;
 using Sakani.Application.Services;
 using Sakani.Infrastructure.Services;
 using System.Reflection;
@@ -176,13 +176,13 @@ else
 
 // Ensure HTTPS redirect runs after forwarded headers and before auth/CORS
 app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionMiddleware>();
 // Apply CORS (uses the default policy configured above)
 app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<ExceptionMiddleware>();
+
 app.MapControllers();
 
 app.Run();
