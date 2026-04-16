@@ -9,6 +9,6 @@ namespace Application.Common.Interfaces.Payment
 {
     public interface IPaymentAppService
     {
-
+        Task<string> PayWithCreditCardSimulatedAsync(PaymentSimulationDto dto, CancellationToken ct);
     }
 }

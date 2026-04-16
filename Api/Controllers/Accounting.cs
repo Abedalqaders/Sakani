@@ -32,6 +32,16 @@ namespace WebApi.Controllers
             var result = await _accountingService.GetOverduePaymentsAsync(ct);
             return Ok(result);
         }
+        [HttpGet("history")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IReadOnlyList<PaymentHistoryResponseDto>>> GetMyPaymentHistory(CancellationToken ct)
+        {
+            var history = await _accountingService.GetMyPaymentHistoryAsync(ct);
+
+            return Ok(history);
+        }
 
         [HttpGet("Stats")]
         public async Task<ActionResult<DashboardStatsDto>> GetDashboardStats(

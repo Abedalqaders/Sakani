@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.MaintenaceTicket;
 using Application.Dto.MaintenanceTicket;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;

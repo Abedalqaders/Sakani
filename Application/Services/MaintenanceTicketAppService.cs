@@ -1,4 +1,7 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces.ImageTicket;
+using Application.Common.Interfaces.MaintenaceTicket;
+using Application.Common.Interfaces.User;
+using Application.Common.Interfaces.General;
 using Application.Dto.MaintenanceTicket;
 using Domain.Entities;
 using Domain.Enums;
@@ -16,14 +19,14 @@ namespace Application.Services
         private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
-        private readonly IImageRepository _imageRepository;
+        private readonly ITicketImageRepository _imageRepository;
 
         public MaintenanceTicketAppService(
             IMaintenanceTicketRepository ticketRepository,
             ICurrentUserService currentUserService, // تصحيح النوع هنا
             IUnitOfWork unitOfWork,
             IFileService fileService, // إضافة النقص
-            IImageRepository imageRepository) // إضافة النقص
+            ITicketImageRepository imageRepository) // إضافة النقص
         {
             _ticketRepository = ticketRepository;
             _currentUserService = currentUserService;

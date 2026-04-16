@@ -22,6 +22,14 @@ namespace Infrastructure.Configurations
             builder.Property(p => p.PaymentDate)
                 .IsRequired(false); // يسمح بـ Null حتى يتم الدفع فعلياً
 
+            builder.Property(p => p.ActualPaymentDate)
+                .IsRequired(false); // تاريخ الدفع الفعلي اختياري
+
+            // رقم العملية من بوابة الدفع (اختياري)
+            builder.Property(p => p.TransactionId)
+                .HasMaxLength(100)
+                .IsRequired(false);
+
             // 2. تحويل الـ Enums لقيم عددية (Byte)
             builder.Property(p => p.PaymentStatus)
                 .HasConversion<byte>();

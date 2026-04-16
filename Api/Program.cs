@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Sakani.Application.Common.Interfaces;
+//using Sakani.Application.Common.Interfaces;
+
 using Sakani.Application.Services;
 using Sakani.Infrastructure.Services;
 using System.Reflection;

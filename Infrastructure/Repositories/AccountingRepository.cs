@@ -98,5 +98,58 @@ namespace Infrastructure.Repositories
 
             return Math.Round((decimal)stats.Rented / stats.Total * 100, 2);
         }
+        public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetPaymentHistoryForRenterAsync(Guid renterId, CancellationToken ct)
+        {
+            return await _context.Set<Payment>()
+                .AsNoTracking() // لأنها عملية قراءة فقط
+                .Where(p => p.Contract.RenterId == renterId && p.PaymentStatus == PaymentStatus.Paid)
+                .OrderByDescending(p => p.ActualPaymentDate) // أحدث الدفعات أولاً
+                .Select(p => new PaymentHistoryResponseDto
+                {
+                    PaymentId = p.Id,
+                    Amount = p.Amount,
+                    DueDate = p.DueDate,
+                    // نستخدم القيمة الفعلية، وإذا كانت null (رغم إنها المفروض ما تكون لدفعة مدفوعة) بنحط تاريخ اليوم كحماية
+                    PaymentDate = p.ActualPaymentDate ?? DateTime.UtcNow,
+                    TransactionId = p.TransactionId ?? "N/A",
+                    PropertyName = p.Contract.Unit.Property.Name,
+                    UnitNo = p.Contract.Unit.UnitNo
+                })
+                .ToListAsync(ct);
+        }
+        public async Task<IReadOnlyList<PendingPaymentResponseDto>> GetPendingPaymentsForRenterAsync(Guid renterId, CancellationToken ct)
+        {
+            return await _context.Set<Payment>()
+                .AsNoTracking()
+                .Where(p => p.Contract.RenterId == renterId &&
+                           (p.PaymentStatus == PaymentStatus.Pending || p.PaymentStatus == PaymentStatus.Overdue))
+                .OrderBy(p => p.DueDate) // الأقدم (المستحق أولاً) بيطلع فوق
+                .Select(p => new PendingPaymentResponseDto
+                {
+                    PaymentId = p.Id,
+                    Amount = p.Amount,
+                    DueDate = p.DueDate,
+                    PropertyName = p.Contract.Unit.Property.Name,
+                    UnitNo = p.Contract.Unit.UnitNo
+                })
+                .ToListAsync(ct);
+        }
+        public async Task<PaymentDetailsDto?> GetPaymentDetailsForRenterAsync(Guid paymentId, Guid renterId, CancellationToken ct)
+        {
+            return await _context.Set<Payment>()
+                .AsNoTracking()
+                .Where(p => p.Id == paymentId && p.Contract.RenterId == renterId)
+                .Select(p => new PaymentDetailsDto
+                {
+                    PaymentId = p.Id,
+                    Amount = p.Amount,
+                    DueDate = p.DueDate,
+                    PropertyName = p.Contract.Unit.Property.Name,
+                    UnitNo = p.Contract.Unit.UnitNo,
+                    ContractStartDate = p.Contract.StartDate,
+                    ContractEndDate = p.Contract.EndDate
+                })
+                .FirstOrDefaultAsync(ct);
+        }
     }
 }

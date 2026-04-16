@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces;
-using Microsoft.AspNetCore.Hosting; 
+﻿using Application.Common.Interfaces.ImageTicket;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Infrastructure.Services
 {

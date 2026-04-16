@@ -9,7 +9,7 @@ using System.Text;
 public class TokenService
 {
     private readonly IConfiguration _config;
-    private readonly IRenterRepository _renterRepository;
+  
     public TokenService(IConfiguration config)
     {
         _config = config;

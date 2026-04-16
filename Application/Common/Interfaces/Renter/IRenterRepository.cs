@@ -10,6 +10,7 @@ namespace Application.Common.Interfaces.Renter
 {
     public interface IRenterRepository:IGenericRepository<Domain.Entities.Renter>
     {
+        Task<Domain.Entities.Renter?> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
 
     }
 }

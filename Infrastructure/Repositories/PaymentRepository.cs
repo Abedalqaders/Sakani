@@ -16,6 +16,11 @@ namespace Infrastructure.Repositories
         public PaymentRepository(ApplicationDbContext context):base(context)
         {
         }
+        public async Task<Payment?> GetPaymentWithContractAsync(Guid paymentId, Guid renterId, CancellationToken ct)
+        {
+            return await _context.Set<Payment>()
+        .FirstOrDefaultAsync(p => p.Id == paymentId && p.Contract.RenterId == renterId, ct);
+        }
         public async Task<bool> CancelPaymentForContract(Guid ContractId, CancellationToken ct)
         {
             var payments = await _context.Set<Payment>()

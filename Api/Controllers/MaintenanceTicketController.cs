@@ -1,4 +1,4 @@
-using Application.Common.Interfaces;
+using Application.Common.Interfaces.MaintenaceTicket;
 using Application.Dto.MaintenanceTicket;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

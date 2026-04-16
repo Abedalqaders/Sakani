@@ -1,6 +1,6 @@
 ﻿using Application.Dto.MaintenanceTicket;
 
-namespace Application.Common.Interfaces
+namespace Application.Common.Interfaces.MaintenaceTicket
 {
     public interface IMaintenanceTicketAppService
     {

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace Application.Common.Interfaces
+using Application.Common.Interfaces.General;
+namespace Application.Common.Interfaces.MaintenaceTicket
 {
     public interface IMaintenanceTicketRepository: IGenericRepository<MaintenanceTicket>
     {

@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces.Accounting;
+using Application.Common.Interfaces.User;
 using Application.Dto.Payment;
 
 
@@ -7,12 +8,25 @@ namespace Application.Services
     public class AccountingService : IAccountingService
     {
         private readonly IAccountingRepository _accountingRepo;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AccountingService(IAccountingRepository accountingRepo)
+        public AccountingService(IAccountingRepository accountingRepo, ICurrentUserService currentUserService   )
         {
             _accountingRepo = accountingRepo;
+            _currentUserService = currentUserService;
         }
+        public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetMyPaymentHistoryAsync(CancellationToken ct)
+        {
+            // بنجيب الـ ID تبع المستأجر من الـ Token
+            var renterId = _currentUserService.RenterId.GetValueOrDefault();
 
+            return await _accountingRepo.GetPaymentHistoryForRenterAsync(renterId, ct);
+        }
+        public async Task<IReadOnlyList<PendingPaymentResponseDto>> GetMyPendingPaymentsAsync(CancellationToken ct)
+        {
+            var renterId = _currentUserService.RenterId.GetValueOrDefault();
+            return await _accountingRepo.GetPendingPaymentsForRenterAsync(renterId, ct);
+        }
         public async Task<IReadOnlyList<PaymentResponse>> GetExpectedPaymentsAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
         {
             if (startDate == default || endDate == default)
@@ -46,6 +60,17 @@ namespace Application.Services
                 TotalCollectedMonth = collected,
                 OccupancyRate = occupancy
             };
+        }
+        public async Task<PaymentDetailsDto> GetPaymentDetailsAsync(Guid paymentId, CancellationToken ct)
+        {
+            var renterId = _currentUserService.RenterId.GetValueOrDefault();
+
+            var details = await _accountingRepo.GetPaymentDetailsForRenterAsync(paymentId, renterId, ct);
+
+            if (details == null)
+                throw new KeyNotFoundException("Payment details not found or access denied.");
+
+            return details;
         }
     }
 }
