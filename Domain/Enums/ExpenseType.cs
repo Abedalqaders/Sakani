@@ -12,6 +12,6 @@ namespace Domain.Enums
         Utility = 2,     
         Tax = 3,         
         Insurance = 4,  
-        Other = 5        
+        Other = 5           
     }
 }

@@ -370,5 +370,58 @@ public static class DbInitializer
             }
             await context.SaveChangesAsync();
         }
+        // 9. تعريف المصاريف (Expenses)
+        var expense1Id = Guid.Parse("aaaa1111-2222-3333-4444-555566667777");
+        var expense2Id = Guid.Parse("bbbb1111-2222-3333-4444-555566667777");
+        var expense3Id = Guid.Parse("cccc1111-2222-3333-4444-555566667777");
+
+        if (!await context.Expenses.IgnoreQueryFilters().AnyAsync(e => e.Id == expense1Id))
+        {
+            await context.Expenses.AddAsync(new Expense
+            {
+                Id = expense1Id,
+                PropertyId = ammanProp1Id,
+                UnitId = unit1Id,
+                Amount = 150,
+                ExpenseType = ExpenseType.Maintenance,
+                ExpenseDate = DateTime.UtcNow.AddDays(-10),
+                Description = "AC repair for unit A-101",
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        if (!await context.Expenses.IgnoreQueryFilters().AnyAsync(e => e.Id == expense2Id))
+        {
+            await context.Expenses.AddAsync(new Expense
+            {
+                Id = expense2Id,
+                PropertyId = zarqaPropId,
+                UnitId = unit2Id,
+                Amount = 300,
+                ExpenseType = ExpenseType.Utility,
+                ExpenseDate = DateTime.UtcNow.AddDays(-5),
+                Description = "Electricity bill for commercial unit",
+                TenantId = tenant2Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        if (!await context.Expenses.IgnoreQueryFilters().AnyAsync(e => e.Id == expense3Id))
+        {
+            await context.Expenses.AddAsync(new Expense
+            {
+                Id = expense3Id,
+                PropertyId = ammanProp2Id,
+                UnitId = null, // مصروف على مستوى العقار مش وحدة
+                Amount = 500,
+                ExpenseType = ExpenseType.Other,
+                ExpenseDate = DateTime.UtcNow.AddDays(-2),
+                Description = "Building cleaning service",
+                TenantId = tenant1Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+        await context.SaveChangesAsync();
     }
 }
