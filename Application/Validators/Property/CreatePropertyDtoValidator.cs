@@ -18,7 +18,7 @@ namespace Application.Validators.Property
                 .NotEmpty().WithMessage("Building number is required.")
                 .MaximumLength(20).WithMessage("Building number is too long.");
 
-            RuleFor(p => p.PropertyType)
+            RuleFor(p => (int)p.PropertyType)
                 .IsInEnum().WithMessage("Invalid Property Type.");
         }
     }

@@ -14,6 +14,6 @@ namespace Application.Dto.Expense
         public decimal Amount { get; set; }
 
         public string? Description { get; set; } = string.Empty;
-        public ExpenseType ExpenseType { get; set; }
+        public ExpenseType expenseType { get; set; }
     }
 }

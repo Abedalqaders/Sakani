@@ -45,7 +45,8 @@ namespace Application.Services
                 Amount = dto.Amount,
                 ExpenseDate = DateTime.UtcNow,
                 PropertyId = dto.PropertyId,
-                UnitId = dto.UnitId
+                UnitId = dto.UnitId,
+                ExpenseType= dto.expenseType
             };
             _expenseRepo.Add(expense);
             await _unitOfWork.SaveChangesAsync(ct);

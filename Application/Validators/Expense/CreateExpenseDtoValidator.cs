@@ -17,8 +17,9 @@ namespace Application.Validators.Expense
             RuleFor(x => x.PropertyId).NotEmpty().WithMessage("PropertyId is required.");
             RuleFor(x => x.Amount).GreaterThan(0).WithMessage("Amount must be greater than zero.");
             RuleFor(x => x.Description).MaximumLength(500).WithMessage("Description cannot exceed 500 characters.");
-            RuleFor(x => (int)x.ExpenseType).Must(val => Enum.IsDefined(typeof(ExpenseType), (byte)val))
-                 .WithMessage("Invalid Expense Type.");
+            RuleFor(x => x.expenseType)
+            .IsInEnum()
+            .WithMessage("Invalid Expense Type.");
         }
     }
 }
