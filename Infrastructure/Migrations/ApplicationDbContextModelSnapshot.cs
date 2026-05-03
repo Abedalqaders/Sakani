@@ -112,6 +112,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
                     b.Property<DateTime>("ExpenseDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expense_date");
@@ -152,6 +156,9 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UnitId")
                         .HasDatabaseName("ix_expenses_unit_id");
+
+                    b.ToTable("Expenses", (string)null);
+                });
 
                     b.ToTable("Expenses", (string)null);
                 });
@@ -759,6 +766,18 @@ namespace Infrastructure.Migrations
                         .HasConstraintName("fk_expenses_units_unit_id");
 
                     b.Navigation("Property");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Image", b =>
+                {
+                    b.HasOne("Domain.Entities.MaintenanceTicket", "Ticket")
+                        .WithMany("Images")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_images_maintenance_tickets_ticket_id");
 
                     b.Navigation("Unit");
                 });

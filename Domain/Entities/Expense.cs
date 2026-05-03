@@ -14,7 +14,8 @@ namespace Domain.Entities
         public Guid? UnitId { get; set; }
         public decimal Amount { get; set; }
         public ExpenseType  ExpenseType { get; set; }
-        public DateTime ExpenseDate { get; set; }
+        public DateTime ExpenseDate { get; set; }   
+        public string? Description { get; set; }= string.Empty;
 
         // Navigation Properties
         public  Unit Unit { get; set; }
