@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class First_Migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -275,6 +275,8 @@ namespace Infrastructure.Migrations
                     amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    actual_payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    transaction_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     payment_status = table.Column<byte>(type: "smallint", nullable: false),
                     contract_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

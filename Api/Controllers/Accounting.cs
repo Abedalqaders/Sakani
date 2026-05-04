@@ -1,12 +1,13 @@
 ﻿using Application.Common.Interfaces.Accounting;
 using Application.Dto.Payment;
+using Microsoft.AspNetCore.Authorization; // تأكد من وجود هذا الـ using
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // لضمان أن جميع المسارات تتطلب مصادقة (Authentication) أولاً
     public class AccountingController : ControllerBase
     {
         private readonly IAccountingService _accountingService;
@@ -17,6 +18,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Expected")]
+        [Authorize(Roles = "Tenant")]
         public async Task<ActionResult<IReadOnlyList<PaymentResponse>>> GetExpectedPayments(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate,
@@ -27,23 +29,26 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Overdue")]
+        [Authorize(Roles = "Tenant")]
         public async Task<ActionResult<IReadOnlyList<PaymentResponse>>> GetOverduePayments(CancellationToken ct)
         {
             var result = await _accountingService.GetOverduePaymentsAsync(ct);
             return Ok(result);
         }
+
         [HttpGet("history")]
+        [Authorize(Roles = "Renter")] // الصلاحية الوحيدة المخصصة للمستأجر
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IReadOnlyList<PaymentHistoryResponseDto>>> GetMyPaymentHistory(CancellationToken ct)
         {
             var history = await _accountingService.GetMyPaymentHistoryAsync(ct);
-
             return Ok(history);
         }
 
         [HttpGet("Stats")]
+        [Authorize(Roles = "Tenant")]
         public async Task<ActionResult<DashboardStatsDto>> GetDashboardStats(
             [FromQuery] int month,
             [FromQuery] int year,
@@ -61,6 +66,30 @@ namespace WebApi.Controllers
 
             var result = await _accountingService.GetDashboardStatsAsync(month, year, ct);
             return Ok(result);
+        }
+
+        [HttpGet("Expenses")]
+        [Authorize(Roles = "Tenant")]
+        public async Task<ActionResult<decimal>> GetExpensesForRange(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate,
+            CancellationToken ct)
+        {
+            if (startDate == default || endDate == default)
+            {
+                return BadRequest("Invalid date range.");
+            }
+
+            if (startDate > endDate)
+            {
+                return BadRequest("Start date must be earlier than end date.");
+            }
+            if (startDate.Year < 2000 || startDate.Year > 2100 || endDate.Year < 2000 || endDate.Year > 2100)
+            {
+                return BadRequest("Invalid year.");
+            }
+            var expenses = await _accountingService.GetExpenseAmountRange(startDate, endDate, ct);
+            return Ok(expenses);
         }
     }
 }

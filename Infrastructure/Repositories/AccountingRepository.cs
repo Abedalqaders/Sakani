@@ -39,7 +39,7 @@ namespace Infrastructure.Repositories
                 })
                 .ToListAsync(ct);
         }
-
+    
         public async Task<IReadOnlyList<PaymentResponse>> GetAllOverDuePayment(CancellationToken ct)
         {
             return await _context.Set<Payment>()
@@ -97,6 +97,13 @@ namespace Infrastructure.Repositories
             if (stats == null || stats.Total == 0) return 0m;
 
             return Math.Round((decimal)stats.Rented / stats.Total * 100, 2);
+        }
+        public async Task<decimal> GetExpensesForRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
+        {
+            return await _context.Set<Expense>()
+                .AsNoTracking()
+                .Where(e => e.ExpenseDate >= startDate && e.ExpenseDate <= endDate)
+                .SumAsync(e => (decimal?)e.Amount, ct) ?? 0m;
         }
         public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetPaymentHistoryForRenterAsync(Guid renterId, CancellationToken ct)
         {

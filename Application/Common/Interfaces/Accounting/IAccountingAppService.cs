@@ -11,5 +11,7 @@ namespace Application.Common.Interfaces.Accounting
         Task<IReadOnlyList<PaymentHistoryResponseDto>> GetMyPaymentHistoryAsync(CancellationToken ct);
         Task<IReadOnlyList<PendingPaymentResponseDto>> GetMyPendingPaymentsAsync(CancellationToken ct);
         Task<PaymentDetailsDto> GetPaymentDetailsAsync(Guid paymentId, CancellationToken ct);
+        Task<decimal> GetExpenseAmountRange(DateTime startDate, DateTime endDate, CancellationToken ct);
+
     }
 }

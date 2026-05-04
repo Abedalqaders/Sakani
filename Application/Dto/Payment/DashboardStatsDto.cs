@@ -11,5 +11,8 @@ namespace Application.Dto.Payment
        public decimal TotalExpectedMonth { set; get; }
        public decimal TotalCollectedMonth { set; get; }
        public decimal OccupancyRate { set; get; }
+       public decimal ExpensesMonth { set; get; }
+
+        public decimal NetIncomeMonth => TotalCollectedMonth - ExpensesMonth;
     }
 }

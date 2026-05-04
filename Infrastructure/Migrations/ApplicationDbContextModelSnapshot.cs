@@ -160,9 +160,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Expenses", (string)null);
                 });
 
-                    b.ToTable("Expenses", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.MaintenanceTicket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -766,18 +763,6 @@ namespace Infrastructure.Migrations
                         .HasConstraintName("fk_expenses_units_unit_id");
 
                     b.Navigation("Property");
-
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Image", b =>
-                {
-                    b.HasOne("Domain.Entities.MaintenanceTicket", "Ticket")
-                        .WithMany("Images")
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_images_maintenance_tickets_ticket_id");
 
                     b.Navigation("Unit");
                 });

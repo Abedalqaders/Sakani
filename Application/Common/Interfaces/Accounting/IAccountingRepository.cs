@@ -13,5 +13,7 @@ namespace Application.Common.Interfaces.Accounting
         Task<IReadOnlyList<PaymentHistoryResponseDto>> GetPaymentHistoryForRenterAsync(Guid renterId, CancellationToken ct);
         Task<IReadOnlyList<PendingPaymentResponseDto>> GetPendingPaymentsForRenterAsync(Guid renterId, CancellationToken ct);
         Task<PaymentDetailsDto?> GetPaymentDetailsForRenterAsync(Guid paymentId, Guid renterId, CancellationToken ct);
+        Task<decimal> GetExpensesForRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct);
+
     }
 }
