@@ -1,3 +1,4 @@
+using Api.Services;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.General;
 using Application.Services;
@@ -87,24 +88,31 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-// ربط الواجهة بالتنفيذ
+
 builder.Services.Scan(scan => scan
     .FromAssemblies(
-        // نستخدم كلاسات معروفة من كل مشروع لنجلب الـ Assembly الخاص بها
         typeof(Application.Common.Interfaces.User.ICurrentUserService).Assembly,
         typeof(Infrastructure.ApplicationDbContext).Assembly,
-        System.Reflection.Assembly.GetExecutingAssembly() // مشروع الـ Api نفسه
+        System.Reflection.Assembly.GetExecutingAssembly()
     )
-    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+    .AddClasses(classes => classes
+        .Where(type => type.Name.EndsWith("Service")
+               && type != typeof(ExpiryBackGroundService))) 
         .AsImplementedInterfaces()
         .WithScopedLifetime()
-        .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+
+    .AddClasses(classes => classes
+        .Where(type => type.Name.EndsWith("Service")
+               && type != typeof(ExpiryBackGroundService))) 
         .AsSelf()
         .WithScopedLifetime()
+
     .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Repository")))
         .AsImplementedInterfaces()
         .WithScopedLifetime()
 );
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseSnakeCaseNamingConvention());
@@ -138,6 +146,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTenantDtoValidator>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IUnitOfWork, InfrastructureUnitOfWork>();
+builder.Services.AddHostedService<ExpiryBackGroundService>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
