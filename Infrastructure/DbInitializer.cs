@@ -4,12 +4,20 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 public static class DbInitializer
 {
     public static async Task SeedAsync(ApplicationDbContext context)
     {
+        // 0. تثبيت معرفات المستخدمين لربطها بالجداول الأخرى والإشعارات
+        var superAdminUserId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+        var tenant1ManagerUserId = Guid.Parse("20000000-0000-0000-0000-000000000001");
+        var tenant2ManagerUserId = Guid.Parse("20000000-0000-0000-0000-000000000002");
+        var renterUser1Id = Guid.Parse("30000000-0000-0000-0000-000000000001");
+        var renterUser2Id = Guid.Parse("30000000-0000-0000-0000-000000000002");
+
         // 1. الأدوار (Roles)
         if (!await context.Roles.AnyAsync())
         {
@@ -24,11 +32,11 @@ public static class DbInitializer
         }
 
         // 2. إنشاء الـ SuperAdmin
-        if (!await context.Users.AnyAsync(u => u.Email == "super@sakani.com"))
+        if (!await context.Users.AnyAsync(u => u.Id == superAdminUserId))
         {
             var superAdmin = new User
             {
-                Id = Guid.NewGuid(),
+                Id = superAdminUserId,
                 Name = "The Boss",
                 Email = "super@sakani.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Super@123"),
@@ -54,13 +62,13 @@ public static class DbInitializer
                 AddressStreet = "Queen Rania St",
                 Email = "info@amman-re.com",
                 PhoneNumber = "0791111111",
-                Status = Domain.Enums.TenantStatus.Active,
+                Status = TenantStatus.Active,
                 CreatedAt = DateTime.UtcNow
             });
 
             await context.Users.AddAsync(new User
             {
-                Id = Guid.NewGuid(),
+                Id = tenant1ManagerUserId,
                 Name = "Ahmad Manager",
                 Email = "manager@amman-re.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Manager@123"),
@@ -81,13 +89,13 @@ public static class DbInitializer
                 AddressStreet = "36th Street",
                 Email = "contact@zarqa-prop.com",
                 PhoneNumber = "0782222222",
-                Status = Domain.Enums.TenantStatus.Active,
+                Status = TenantStatus.Active,
                 CreatedAt = DateTime.UtcNow
             });
 
             await context.Users.AddAsync(new User
             {
-                Id = Guid.NewGuid(),
+                Id = tenant2ManagerUserId,
                 Name = "Sami Manager",
                 Email = "manager2@zarqa-prop.com",
                 PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Manager@123"),
@@ -156,7 +164,6 @@ public static class DbInitializer
 
         if (!await context.Renters.IgnoreQueryFilters().AnyAsync(r => r.Id == renter1Id))
         {
-            var renterUser1Id = Guid.NewGuid();
             await context.Users.AddAsync(new User
             {
                 Id = renterUser1Id,
@@ -184,7 +191,6 @@ public static class DbInitializer
 
         if (!await context.Renters.IgnoreQueryFilters().AnyAsync(r => r.Id == renter2Id))
         {
-            var renterUser2Id = Guid.NewGuid();
             await context.Users.AddAsync(new User
             {
                 Id = renterUser2Id,
@@ -241,7 +247,7 @@ public static class DbInitializer
                 RentPrice = 1200,
                 Area = "250",
                 PropertyId = zarqaPropId,
-                UnitStatus = UnitStatus.Rented, // تم التعديل لأنها سترتبط بعقد
+                UnitStatus = UnitStatus.Rented,
                 TenantId = tenant2Id,
                 CreatedAt = DateTime.UtcNow
             });
@@ -257,7 +263,7 @@ public static class DbInitializer
                 RentPrice = 450,
                 Area = "110",
                 PropertyId = ammanProp1Id,
-                UnitStatus = UnitStatus.Available, // وحدة فارغة لاختبار نسبة الإشغال
+                UnitStatus = UnitStatus.Available,
                 TenantId = tenant1Id,
                 CreatedAt = DateTime.UtcNow
             });
@@ -316,7 +322,6 @@ public static class DbInitializer
                 Payments = new List<Payment>()
             };
 
-            // دفعة أولى مدفوعة
             contract2.Payments.Add(new Payment
             {
                 Id = Guid.NewGuid(),
@@ -328,18 +333,16 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             });
 
-            // دفعة ثانية متأخرة (لاختبار النظام)
             contract2.Payments.Add(new Payment
             {
                 Id = Guid.NewGuid(),
                 Amount = 1200,
-                DueDate = DateTime.UtcNow.AddDays(-10), // استُحقت قبل 10 أيام
+                DueDate = DateTime.UtcNow.AddDays(-10),
                 PaymentStatus = PaymentStatus.Pending,
                 TenantId = tenant2Id,
                 CreatedAt = DateTime.UtcNow
             });
 
-            // دفعة ثالثة متوقعة (مستقبلية)
             contract2.Payments.Add(new Payment
             {
                 Id = Guid.NewGuid(),
@@ -353,7 +356,6 @@ public static class DbInitializer
             await context.Contracts.AddAsync(contract2);
         }
 
-        // حفظ جميع الكيانات المدخلة
         await context.SaveChangesAsync();
 
         // 8. تحديث الدفعات المتأخرة برمجياً
@@ -370,6 +372,7 @@ public static class DbInitializer
             }
             await context.SaveChangesAsync();
         }
+
         // 9. تعريف المصاريف (Expenses)
         var expense1Id = Guid.Parse("aaaa1111-2222-3333-4444-555566667777");
         var expense2Id = Guid.Parse("bbbb1111-2222-3333-4444-555566667777");
@@ -413,7 +416,7 @@ public static class DbInitializer
             {
                 Id = expense3Id,
                 PropertyId = ammanProp2Id,
-                UnitId = null, // مصروف على مستوى العقار مش وحدة
+                UnitId = null,
                 Amount = 500,
                 ExpenseType = ExpenseType.Other,
                 ExpenseDate = DateTime.UtcNow.AddDays(-2),
@@ -423,5 +426,61 @@ public static class DbInitializer
             });
         }
         await context.SaveChangesAsync();
+
+        // 10. الإشعارات (Notifications)
+        if (!await context.Set<Notification>().IgnoreQueryFilters().AnyAsync())
+        {
+            var notifications = new List<Notification>
+            {
+                // إشعار لصاحب العقار (Ahmad Manager) يخبره بوجود دفعة متأخرة
+                new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenant2Id,
+                    UserId = tenant2ManagerUserId,
+                    SenderId = null, // النظام هو المرسل
+                    Title = "دفعة إيجار متأخرة",
+                    Message = "يوجد دفعة متأخرة على العقد رقم 2",
+                    Type = NotificationType.PaymentOverdue,
+                    ReferenceId = contract2Id, // التوجيه لتفاصيل العقد
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // إشعار للمستأجر (Omar Renter) يذكره بموعد الدفع القادم
+                new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenant1Id,
+                    UserId = renterUser1Id,
+                    SenderId = tenant1ManagerUserId, // المالك هو المرسل
+                    Title = "تذكير بموعد الدفع",
+                    Message = "يرجى العلم أن موعد الدفعة القادمة سيحل قريباً.",
+                    Type = NotificationType.PaymentReminder,
+                    ReferenceId = contract1Id,
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                },
+
+                // إشعار للمستأجر (Zaid Renter) بتحديث حالة الصيانة
+                new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenant2Id,
+                    UserId = renterUser2Id,
+                    SenderId = tenant2ManagerUserId,
+                    Title = "تحديث طلب الصيانة",
+                    Message = "تم الانتهاء من صيانة المكيف في وحدتك التجارية.",
+                    Type = NotificationType.MaintenanceUpdate,
+                    ReferenceId = expense2Id,
+                    IsRead = true,
+                    ReadAt = DateTime.UtcNow.AddMinutes(-30),
+                    CreatedAt = DateTime.UtcNow.AddDays(-1)
+                }
+            };
+
+            await context.Set<Notification>().AddRangeAsync(notifications);
+            await context.SaveChangesAsync();
+        }
     }
 }

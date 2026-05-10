@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class First_Migration : Migration
+    public partial class Initial_Create_With_Notifications : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -166,6 +166,43 @@ namespace Infrastructure.Migrations
                         column: x => x.unit_id,
                         principalTable: "units",
                         principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    sender_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    title = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    message = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    reference_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_read = table.Column<bool>(type: "boolean", nullable: false),
+                    read_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_notifications", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_notifications_users_sender_id",
+                        column: x => x.sender_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "fk_notifications_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -358,6 +395,21 @@ namespace Infrastructure.Migrations
                 column: "unit_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_notifications_sender_id",
+                table: "Notifications",
+                column: "sender_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_notifications_tenant_id_user_id_created_at",
+                table: "Notifications",
+                columns: new[] { "tenant_id", "user_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_notifications_user_id_is_read",
+                table: "Notifications",
+                columns: new[] { "user_id", "is_read" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_payments_contract_id",
                 table: "payments",
                 column: "contract_id");
@@ -403,6 +455,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "images");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "payments");
