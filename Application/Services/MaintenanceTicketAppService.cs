@@ -99,10 +99,17 @@ namespace Application.Services
             {
                 Id = ticket.Id,
                 UnitId = ticket.UnitId,
+                UnitNo = ticket.Unit?.UnitNo ?? " ",
                 Subject = ticket.Subject,
                 Description = ticket.Description,
                 Status = ticket.TicketStatus.ToString(),
-                CreatedAt = ticket.CreatedAt
+                CreatedAt = ticket.CreatedAt,
+
+                Images = ticket.Images?.Select(img => new TicketImageDto
+                {
+                    Id = img.Id,
+                    ImageUrl = img.ImagePath
+                }).ToList() ?? new List<TicketImageDto>()
             };
         }
         public async Task CancelTicketAsync(Guid id, CancellationToken ct)

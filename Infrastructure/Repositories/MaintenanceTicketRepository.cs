@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,13 +21,20 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
-
+        public override async Task<MaintenanceTicket?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(t => t.Unit)    // لجلب بيانات الشقة
+                .Include(t => t.Images)  // لجلب الصور
+                .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        }
         // 3. كتابة الدوال المخصصة فقط التي لا توجد في الـ Generic Repository
         public async Task<IReadOnlyList<MaintenanceTicket>> GetByRenterIdAsync(Guid renterId, CancellationToken ct = default)
         {
             return await _context.MaintenanceTickets
                 .Where(t => t.RenterId == renterId)
-                .OrderByDescending(t => t.CreatedAt)
+                .OrderByDescending(t => t.CreatedAt).Include(t => t.Unit)
+                .Include (t => t.Images)
                 .AsNoTracking()
                 .ToListAsync(ct);
         }
