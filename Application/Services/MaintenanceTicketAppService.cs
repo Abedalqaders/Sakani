@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class MaintenanceTicketAppService
+    public class MaintenanceTicketAppService: IMaintenanceTicketAppService
     {
         private readonly IMaintenanceTicketRepository _ticketRepository;
         private readonly ICurrentUserService _currentUserService;
@@ -83,7 +83,7 @@ namespace Application.Services
                 UnitId = t.UnitId,
                 Subject = t.Subject,
                 Description = t.Description,
-                Status = t.TicketStatus.ToString(),
+                Status = t.TicketStatus,
                 CreatedAt = t.CreatedAt
             }).ToList();
         }
@@ -102,7 +102,7 @@ namespace Application.Services
                 UnitNo = ticket.Unit?.UnitNo ?? " ",
                 Subject = ticket.Subject,
                 Description = ticket.Description,
-                Status = ticket.TicketStatus.ToString(),
+                Status = ticket.TicketStatus,
                 CreatedAt = ticket.CreatedAt,
 
                 Images = ticket.Images?.Select(img => new TicketImageDto
@@ -168,7 +168,7 @@ namespace Application.Services
                 UnitId = t.UnitId,
                 Subject = t.Subject,
                 Description = t.Description,
-                Status = t.TicketStatus.ToString(),
+                Status = t.TicketStatus,
                 CreatedAt = t.CreatedAt
             }).ToList();
         }

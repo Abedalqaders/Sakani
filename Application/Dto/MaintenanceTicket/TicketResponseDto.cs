@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Domain.Enums;
 namespace Application.Dto.MaintenanceTicket
 {
     public class TicketResponseDto
@@ -18,7 +18,7 @@ namespace Application.Dto.MaintenanceTicket
         public string Description { get; set; } = string.Empty;
 
         // تحويل الـ Enum إلى نص (String) ليكون مفهوماً للـ Frontend (مثال: "InProgress")
-        public string Status { get; set; } = string.Empty;
+        public  TicketStatus Status { get; set; } = TicketStatus.Open;
 
         public DateTime CreatedAt { get; set; }
 

@@ -25,7 +25,7 @@ namespace WebApi.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
-        {
+                                  {
             var user = await _context.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
@@ -43,7 +43,6 @@ namespace WebApi.Controllers
             }
 
             Guid renterId = Guid.Empty;
-
             if (user.Role.Name == "Renter")
             {
                 var renter = await _renterRepository.GetByUserIdAsync(user.Id);
@@ -54,8 +53,10 @@ namespace WebApi.Controllers
                     return Unauthorized("Renter profile not found.");
                 }
             }
-
             var token = _tokenService.CreateToken(user, renterId);
+           
+
+
 
             user.LastLogin = DateTime.UtcNow;
             await _context.SaveChangesAsync();

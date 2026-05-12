@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
         }
         public async Task<Renter?> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
         {
-            return await _context.Renters
+            return await _context.Renters.IgnoreQueryFilters()
                 .FirstOrDefaultAsync(r => r.UserId == userId, ct);
         }
     }
