@@ -29,21 +29,14 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }
         // 3. كتابة الدوال المخصصة فقط التي لا توجد في الـ Generic Repository
-        public async Task<IReadOnlyList<MaintenanceTicket>> GetByRenterIdAsync(Guid renterId, CancellationToken ct = default)
+        public  IQueryable<MaintenanceTicket> GetByRenterIdAsync(Guid renterId)
         {
-            return await _context.MaintenanceTickets
-                .Where(t => t.RenterId == renterId)
-                .OrderByDescending(t => t.CreatedAt).Include(t => t.Unit)
-                .Include (t => t.Images)
-                .AsNoTracking()
-                .ToListAsync(ct);
+            return _context.MaintenanceTickets.AsNoTracking();
         }
         public async Task<IReadOnlyList<MaintenanceTicket>> GetFilteredAsync(TicketFilterDto filter, CancellationToken ct = default)
         {
-            // نبدأ باستعلام غير منفذ
             var query = _context.MaintenanceTickets.AsQueryable();
 
-            // نضيف الشروط ديناميكياً فقط إذا كانت موجودة
             if (filter.Status.HasValue)
                 query = query.Where(t => t.TicketStatus == filter.Status.Value);
 

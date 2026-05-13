@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
 namespace Application.Services
 {
     public class MaintenanceTicketAppService: IMaintenanceTicketAppService
@@ -75,17 +75,27 @@ namespace Application.Services
         public async Task<IReadOnlyList<TicketResponseDto>> GetMyTicketsAsync(CancellationToken ct)
         {
             var renterId =  _currentUserService.RenterId.GetValueOrDefault();
-            var tickets = await _ticketRepository.GetByRenterIdAsync(renterId, ct);
+            var query =   _ticketRepository.GetByRenterIdAsync(renterId);
 
-            return tickets.Select(t => new TicketResponseDto
-            {
-                Id = t.Id,
-                UnitId = t.UnitId,
-                Subject = t.Subject,
-                Description = t.Description,
-                Status = t.TicketStatus,
-                CreatedAt = t.CreatedAt
-            }).ToList();
+            return await query
+         .OrderByDescending(t => t.CreatedAt)
+         .Select(t => new TicketResponseDto
+         {
+             Id = t.Id,
+             UnitId = t.UnitId,
+             UnitNo = t.Unit.UnitNo,
+             Subject = t.Subject,
+             Description = t.Description,
+             Status = t.TicketStatus,
+             CreatedAt = t.CreatedAt,
+             Images = t.Images.Select(img => new TicketImageDto
+             {
+                 Id = img.Id,
+                 ImageUrl = img.ImagePath
+             }).ToList()
+         })
+         .ToListAsync(ct); 
+
         }
         public async Task<TicketResponseDto?> GetByIdAsync(Guid id, CancellationToken ct)
         {

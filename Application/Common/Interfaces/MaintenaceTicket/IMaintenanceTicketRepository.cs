@@ -10,8 +10,8 @@ namespace Application.Common.Interfaces.MaintenaceTicket
 {
     public interface IMaintenanceTicketRepository: IGenericRepository<MaintenanceTicket>
     {
-        
-        Task<IReadOnlyList<MaintenanceTicket>> GetByRenterIdAsync(Guid renterId, CancellationToken ct = default);
+
+        IQueryable<MaintenanceTicket> GetByRenterIdAsync(Guid renterId);
         Task<IReadOnlyList<MaintenanceTicket>> GetFilteredAsync(TicketFilterDto filter, CancellationToken ct = default);
 
     }
