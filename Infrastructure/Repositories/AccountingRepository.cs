@@ -109,7 +109,7 @@ namespace Infrastructure.Repositories
         {
             return await _context.Set<Payment>()
                 .AsNoTracking() // لأنها عملية قراءة فقط
-                .Where(p => p.Contract.RenterId == renterId && p.PaymentStatus == PaymentStatus.Paid)
+                .Where(p => p.Contract.RenterId == renterId)
                 .OrderByDescending(p => p.ActualPaymentDate) // أحدث الدفعات أولاً
                 .Select(p => new PaymentHistoryResponseDto
                 {
@@ -117,10 +117,11 @@ namespace Infrastructure.Repositories
                     Amount = p.Amount,
                     DueDate = p.DueDate,
                     // نستخدم القيمة الفعلية، وإذا كانت null (رغم إنها المفروض ما تكون لدفعة مدفوعة) بنحط تاريخ اليوم كحماية
-                    PaymentDate = p.ActualPaymentDate ?? DateTime.UtcNow,
-                    TransactionId = p.TransactionId ?? "N/A",
+                    PaymentDate = p.ActualPaymentDate ,
+                    TransactionId = p.TransactionId,
                     PropertyName = p.Contract.Unit.Property.Name,
-                    UnitNo = p.Contract.Unit.UnitNo
+                    UnitNo = p.Contract.Unit.UnitNo ,
+                    PaymentStatus=p.PaymentStatus
                 })
                 .ToListAsync(ct);
         }

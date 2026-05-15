@@ -19,7 +19,7 @@ namespace Application.Common.Interfaces.Contract
 
         public Task<Guid> TerminateContractAsync(Guid contractId, CancellationToken ct);
 
-
+        public Task<MyContractDetailsDto> GetMyContractAsync(CancellationToken ct);
 
     }
 }

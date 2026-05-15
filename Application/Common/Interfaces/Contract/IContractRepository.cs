@@ -10,5 +10,6 @@ namespace Application.Common.Interfaces.Contract
         Task<ContractBasicResponseDto?> GetActiveContractsByUnitIdAsync(Guid unitId, CancellationToken ct);
         Task<IReadOnlyList<ContractBasicResponseDto?>> GetBasicContractsForTenantAsync(CancellationToken ct);
         Task<Domain.Entities.Contract?> GetContractWithUnitAsync(Guid contractId, CancellationToken ct);
+     Task<MyContractDetailsDto?> GetActiveContractForRenterAsync(Guid renterid, CancellationToken ct);
     }
 }

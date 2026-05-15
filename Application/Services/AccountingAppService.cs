@@ -1,6 +1,7 @@
 ﻿using Application.Common.Interfaces.Accounting;
 using Application.Common.Interfaces.User;
 using Application.Dto.Payment;
+using Domain.Enums;
 
 
 namespace Application.Services
@@ -15,13 +16,29 @@ namespace Application.Services
             _accountingRepo = accountingRepo;
             _currentUserService = currentUserService;
         }
-        public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetMyPaymentHistoryAsync(CancellationToken ct)
+        public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetMyPaymentHistoryAsync(PaymentFilterType filter, CancellationToken ct)
         {
             // بنجيب الـ ID تبع المستأجر من الـ Token
             var renterId = _currentUserService.RenterId.GetValueOrDefault();
 
-            return await _accountingRepo.GetPaymentHistoryForRenterAsync(renterId, ct);
-        }
+
+            var query = await _accountingRepo.GetPaymentHistoryForRenterAsync(renterId, ct);
+            IEnumerable<PaymentHistoryResponseDto> filteredResult = query;
+            switch (filter) {
+            case PaymentFilterType.Overdue:
+                    filteredResult = filteredResult.Where(p => p.PaymentStatus == PaymentStatus.Overdue ||
+        (p.PaymentStatus == PaymentStatus.Pending && p.DueDate < DateTime.UtcNow)); ;
+                break;
+                case PaymentFilterType.Upcoming:
+                    filteredResult = filteredResult.Where(p => p.PaymentStatus == PaymentStatus.Pending && p.DueDate >= DateTime.UtcNow);
+                    break;
+                }
+            return filteredResult.ToList();
+                
+
+            }
+            
+        
         public async Task<IReadOnlyList<PendingPaymentResponseDto>> GetMyPendingPaymentsAsync(CancellationToken ct)
         {
             var renterId = _currentUserService.RenterId.GetValueOrDefault();
