@@ -142,7 +142,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTenantDtoValidator>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IUnitOfWork, InfrastructureUnitOfWork>();
-builder.Services.AddHostedService<ExpiryBackGroundService>();
+
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

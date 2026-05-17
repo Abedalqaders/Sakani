@@ -11,9 +11,9 @@ public class MaintenanceTicketConfiguration : IEntityTypeConfiguration<Maintenan
 
         builder.Property(t => t.TicketStatus).HasConversion<byte>();
 
-        // العلاقات: التذكرة تتبع وحدة وتتبع مستأجر
+        
         builder.HasOne(t => t.Unit)
-            .WithMany() // أو WithMany(u => u.MaintenanceTickets) إذا أضفتها في الـ Unit
+            .WithMany()
             .HasForeignKey(t => t.UnitId)
             .OnDelete(DeleteBehavior.Restrict);
 

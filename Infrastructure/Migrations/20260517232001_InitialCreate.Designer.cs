@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260517212825_InitialCreate")]
+    [Migration("20260517232001_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -65,7 +65,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("payment_freq");
 
                     b.Property<decimal>("RentAmount")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric(18,2)")
                         .HasColumnName("rent_amount");
 
                     b.Property<Guid>("RenterId")
@@ -101,7 +101,18 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UnitId")
                         .HasDatabaseName("ix_contracts_unit_id");
 
-                    b.ToTable("contracts", (string)null);
+                    b.HasIndex("TenantId", "RenterId")
+                        .HasDatabaseName("ix_contracts_tenant_id_renter_id");
+
+                    b.HasIndex("TenantId", "UnitId")
+                        .HasDatabaseName("ix_contracts_tenant_id_unit_id");
+
+                    b.ToTable("contracts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Contracts_PositiveRent", "rent_amount > 0");
+
+                            t.HasCheckConstraint("CK_Contracts_ValidDates", "start_date < end_date");
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Expense", b =>
@@ -482,7 +493,6 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("description");
@@ -534,6 +544,10 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_renters_user_id");
+
+                    b.HasIndex("TenantId", "NationalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_renters_tenant_id_national_id");
 
                     b.ToTable("renters", (string)null);
                 });
@@ -821,13 +835,16 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique()
-                        .HasDatabaseName("ix_users_email");
+                        .HasDatabaseName("ix_users_email")
+                        .HasFilter("is_deleted = false AND tenant_id IS NULL");
 
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_users_role_id");
 
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_users_tenant_id");
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_tenant_id_email")
+                        .HasFilter("is_deleted = false AND tenant_id IS NOT NULL");
 
                     b.ToTable("users", (string)null);
                 });

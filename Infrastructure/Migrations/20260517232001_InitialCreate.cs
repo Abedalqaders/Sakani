@@ -216,7 +216,7 @@ namespace Infrastructure.Migrations
                     national_id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -259,6 +259,8 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_contracts", x => x.id);
+                    table.CheckConstraint("CK_Contracts_PositiveRent", "rent_amount > 0");
+                    table.CheckConstraint("CK_Contracts_ValidDates", "start_date < end_date");
                     table.ForeignKey(
                         name: "fk_contracts_renters_renter_id",
                         column: x => x.renter_id,
@@ -370,6 +372,16 @@ namespace Infrastructure.Migrations
                 column: "renter_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_contracts_tenant_id_renter_id",
+                table: "contracts",
+                columns: new[] { "tenant_id", "renter_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_contracts_tenant_id_unit_id",
+                table: "contracts",
+                columns: new[] { "tenant_id", "unit_id" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_contracts_unit_id",
                 table: "contracts",
                 column: "unit_id");
@@ -420,6 +432,12 @@ namespace Infrastructure.Migrations
                 column: "contract_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_renters_tenant_id_national_id",
+                table: "renters",
+                columns: new[] { "tenant_id", "national_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_renters_user_id",
                 table: "renters",
                 column: "user_id");
@@ -439,7 +457,8 @@ namespace Infrastructure.Migrations
                 name: "ix_users_email",
                 table: "users",
                 column: "email",
-                unique: true);
+                unique: true,
+                filter: "is_deleted = false AND tenant_id IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "ix_users_role_id",
@@ -447,9 +466,11 @@ namespace Infrastructure.Migrations
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_users_tenant_id",
+                name: "ix_users_tenant_id_email",
                 table: "users",
-                column: "tenant_id");
+                columns: new[] { "tenant_id", "email" },
+                unique: true,
+                filter: "is_deleted = false AND tenant_id IS NOT NULL");
         }
 
         /// <inheritdoc />

@@ -32,10 +32,7 @@ namespace Infrastructure.Configurations
     .OnDelete(DeleteBehavior.Restrict);
 
 
-            // ملاحظة: علاقة العقار بالوحدات (Property -> Units) تمت إضافتها مسبقاً في PropertyConfiguration
-            // لا حاجة لتكرارها هنا.
-
-            // الفلتر الخاص بـ TenantId يبقى في ApplicationDbContext
+  
         }
     }
 }

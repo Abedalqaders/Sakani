@@ -66,22 +66,22 @@ public static class DbInitializer
 
         // 4. إضافة العقارات والمستأجرين
         var ammanProp1Id = Guid.Parse("3a59cc1c-f8d9-4ba4-9c9b-7ee0f5283af5");
-        var ammanProp2Id = Guid.Parse("c2ce1c24-a891-4e58-af66-c3c5a1faff90"); // إعادة تفعيل المعرف
+        var ammanProp2Id = Guid.Parse("c2ce1c24-a891-4e58-af66-c3c5a1faff90");
         var zarqaPropId = Guid.Parse("4352708a-0656-404a-9475-da2622205340");
         var renter1Id = Guid.Parse("7a123456-1111-2222-3333-444455556666");
         var renter2Id = Guid.Parse("8b123456-2222-3333-4444-555566667777");
 
         if (!await context.Properties.IgnoreQueryFilters().AnyAsync(p => p.Id == ammanProp1Id))
         {
-            await context.Properties.AddAsync(new Property { Id = ammanProp1Id, Name = "Abdali Gateway Tower", City = "Amman", AddressRegion = "Abdali", PropertyType = PropertyType.Residential, TenantId = tenant1Id, CreatedAt = now });
-            await context.Properties.AddAsync(new Property { Id = ammanProp2Id, Name = "Jabal Amman Luxury Suites", City = "Amman", AddressRegion = "Jabal Amman", PropertyType = PropertyType.Residential, TenantId = tenant1Id, CreatedAt = now });
-            await context.Properties.AddAsync(new Property { Id = zarqaPropId, Name = "Zarqa Commercial Center", City = "Zarqa", AddressRegion = "New Zarqa", PropertyType = PropertyType.Commercial, TenantId = tenant2Id, CreatedAt = now });
+            await context.Properties.AddAsync(new Property { Id = ammanProp1Id, Name = "Abdali Gateway Tower", City = "Amman", AddressRegion = "Abdali", Street = "Arar St", BuildingNo = "15", PropertyType = PropertyType.Residential, TenantId = tenant1Id, CreatedAt = now });
+            await context.Properties.AddAsync(new Property { Id = ammanProp2Id, Name = "Jabal Amman Luxury Suites", City = "Amman", AddressRegion = "Jabal Amman", Street = "Rainbow St", BuildingNo = "22", PropertyType = PropertyType.Residential, TenantId = tenant1Id, CreatedAt = now });
+            await context.Properties.AddAsync(new Property { Id = zarqaPropId, Name = "Zarqa Commercial Center", City = "Zarqa", AddressRegion = "New Zarqa", Street = "36th St", BuildingNo = "104", PropertyType = PropertyType.Commercial, TenantId = tenant2Id, CreatedAt = now });
 
             await context.Users.AddAsync(new User { Id = renterUser1Id, Name = "Omar Renter", Email = "omar@gmail.com", PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Renter@123"), RoleId = 3, TenantId = tenant1Id, CreatedAt = now });
-            await context.Renters.AddAsync(new Renter { Id = renter1Id, FirstName = "Omar", LastName = "Alaio", NationalId = "9901012345", PhoneNumber = "0790000001", UserId = renterUser1Id, TenantId = tenant1Id, CreatedAt = now });
+            await context.Renters.AddAsync(new Renter { Id = renter1Id, FirstName = "Omar", LastName = "Alaio", NationalId = "9901012345", PhoneNumber = "0790000001", UserId = renterUser1Id, TenantId = tenant1Id, CreatedAt = now, Description = "Regular Renter" });
 
             await context.Users.AddAsync(new User { Id = renterUser2Id, Name = "Zaid Renter", Email = "zaid@gmail.com", PasswordHashed = BCrypt.Net.BCrypt.HashPassword("Renter@123"), RoleId = 3, TenantId = tenant2Id, CreatedAt = now });
-            await context.Renters.AddAsync(new Renter { Id = renter2Id, FirstName = "AbedAlqader", LastName = "Alsadi", NationalId = "9952025566", PhoneNumber = "0780000002", UserId = renterUser2Id, TenantId = tenant2Id, CreatedAt = now });
+            await context.Renters.AddAsync(new Renter { Id = renter2Id, FirstName = "AbedAlqader", LastName = "Alsadi", NationalId = "9952025566", PhoneNumber = "0780000002", UserId = renterUser2Id, TenantId = tenant2Id, CreatedAt = now, Description = "Commercial Renter" });
 
             await context.SaveChangesAsync();
         }
@@ -93,9 +93,9 @@ public static class DbInitializer
 
         if (!await context.Units.IgnoreQueryFilters().AnyAsync(u => u.Id == unit1Id))
         {
-            await context.Units.AddAsync(new Unit { Id = unit1Id, UnitNo = "A-101", RentPrice = 500, PropertyId = ammanProp1Id, UnitStatus = UnitStatus.Rented, TenantId = tenant1Id, CreatedAt = now });
-            await context.Units.AddAsync(new Unit { Id = unit2Id, UnitNo = "C-50", RentPrice = 1200, PropertyId = zarqaPropId, UnitStatus = UnitStatus.Rented, TenantId = tenant2Id, CreatedAt = now });
-            await context.Units.AddAsync(new Unit { Id = unit3Id, UnitNo = "B-202", RentPrice = 450, PropertyId = ammanProp1Id, UnitStatus = UnitStatus.Rented, TenantId = tenant1Id, CreatedAt = now });
+            await context.Units.AddAsync(new Unit { Id = unit1Id, UnitNo = "A-101", Floor = "1", Area = "120sqm", RentPrice = 500, PropertyId = ammanProp1Id, UnitStatus = UnitStatus.Rented, IsVacancyNotified = false, TenantId = tenant1Id, CreatedAt = now });
+            await context.Units.AddAsync(new Unit { Id = unit2Id, UnitNo = "C-50", Floor = "5", Area = "250sqm", RentPrice = 1200, PropertyId = zarqaPropId, UnitStatus = UnitStatus.Rented, IsVacancyNotified = false, TenantId = tenant2Id, CreatedAt = now });
+            await context.Units.AddAsync(new Unit { Id = unit3Id, UnitNo = "B-202", Floor = "2", Area = "110sqm", RentPrice = 450, PropertyId = ammanProp1Id, UnitStatus = UnitStatus.Rented, IsVacancyNotified = false, TenantId = tenant1Id, CreatedAt = now });
             await context.SaveChangesAsync();
         }
 
@@ -111,6 +111,8 @@ public static class DbInitializer
                 RentAmount = 6000,
                 PaymentFreq = PaymentFrequency.Monthly,
                 ContractStatus = ContractStatus.Active,
+                IsExpirationReminderSent = false,
+                IsOverstayNotificationSent = false,
                 UnitId = unit1Id,
                 RenterId = renter1Id,
                 TenantId = tenant1Id,
@@ -131,6 +133,7 @@ public static class DbInitializer
                     DueDate = dueDate,
                     PaymentStatus = paymentStatus,
                     PaymentDate = paymentDate,
+                    IsOverdueNotificationSent = false,
                     TenantId = tenant1Id,
                     CreatedAt = now
                 });
@@ -147,7 +150,10 @@ public static class DbInitializer
                 StartDate = now.AddMonths(-11),
                 EndDate = now.AddDays(15),
                 RentAmount = 7200,
+                PaymentFreq = PaymentFrequency.Monthly,
                 ContractStatus = ContractStatus.Active,
+                IsExpirationReminderSent = false,
+                IsOverstayNotificationSent = false,
                 UnitId = unit2Id,
                 RenterId = renter2Id,
                 TenantId = tenant2Id,
@@ -164,7 +170,10 @@ public static class DbInitializer
                 StartDate = now.AddMonths(-12),
                 EndDate = now.AddDays(-5),
                 RentAmount = 5400,
+                PaymentFreq = PaymentFrequency.Monthly,
                 ContractStatus = ContractStatus.Active,
+                IsExpirationReminderSent = false,
+                IsOverstayNotificationSent = false,
                 UnitId = unit3Id,
                 RenterId = renter1Id,
                 TenantId = tenant1Id,
@@ -179,13 +188,15 @@ public static class DbInitializer
             {
                 Id = ticket1Id,
                 UnitId = unit1Id,
+                RenterId = renter1Id,
+                Subject = "Water Leakage",
                 TicketStatus = TicketStatus.Open,
                 Description = "Water leak escalation test",
+                IsEscalationNotified = false,
                 TenantId = tenant1Id,
                 CreatedAt = now.AddDays(-3)
             });
         }
-
         await context.SaveChangesAsync();
 
         // 7. المصاريف كاملة (Expenses)
@@ -207,7 +218,57 @@ public static class DbInitializer
         {
             await context.Expenses.AddAsync(new Expense { Id = expense3Id, PropertyId = ammanProp2Id, UnitId = null, Amount = 500, ExpenseType = ExpenseType.Other, ExpenseDate = now.AddDays(-2), Description = "Building cleaning service", TenantId = tenant1Id, CreatedAt = now });
         }
-
         await context.SaveChangesAsync();
+
+        // 8. إضافة حقل الإشعارات للتجربة (Notifications)
+        // 8. إضافة حقل الإشعارات للتجربة (Notifications)
+        if (!await context.Notifications.IgnoreQueryFilters().AnyAsync())
+        {
+            await context.Notifications.AddRangeAsync(new List<Notification>
+    {
+        new Notification
+        {
+            Id = Guid.NewGuid(),
+            UserId = tenant1ManagerUserId,
+            SenderId = null,
+            Title = "تأخر في سداد الدفعة",
+            Message = "تنبيه: المستأجر عمر العليان متأخر في سداد الدفعة المستحقة للعقد رقم 1.",
+            Type = NotificationType.PaymentOverdue,
+            ReferenceId = contract1Id,
+            IsRead = false,
+            TenantId = tenant1Id,
+            CreatedAt = now
+        },
+        new Notification
+        {
+            Id = Guid.NewGuid(),
+            UserId = tenant1ManagerUserId,
+            SenderId = null,
+            Title = "تصعيد تذكرة صيانة متأخرة",
+            Message = "تم تصعيد تذكرة تسريب المياه لعدم اتخاذ إجراء ضمن المدة المحددة.",
+            Type = NotificationType.MaintenanceEscalation,
+            ReferenceId = ticket1Id,
+            IsRead = false,
+            TenantId = tenant1Id,
+            CreatedAt = now.AddHours(-2)
+        },
+        
+        new Notification
+        {
+            Id = Guid.NewGuid(),
+            UserId = tenant2ManagerUserId,
+            SenderId = null,
+            Title = "تنبيه: اقتراب انتهاء صلاحية العقد",
+            Message = "العقد رقم 2 الخاص بالوحدة C-50 سينتهي خلال 15 يوماً.",
+            Type = NotificationType.ContractRenewalReminder,
+            ReferenceId = contract2Id,
+            IsRead = true,
+            ReadAt = now.AddHours(-1),
+            TenantId = tenant2Id,
+            CreatedAt = now.AddDays(-1)
+        }
+    });
+            await context.SaveChangesAsync();
+        }
     }
 }

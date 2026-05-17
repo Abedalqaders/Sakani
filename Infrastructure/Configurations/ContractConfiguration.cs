@@ -9,39 +9,38 @@ namespace Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<Contract> builder)
         {
             // 1. قيود البيانات (Data Constraints)
-
-            // RentAmount: تحديد الدقة العشرية للقيم المالية
             builder.Property(c => c.RentAmount)
                 .IsRequired()
-                .HasColumnType("decimal(18,2)");
+                .HasColumnType("numeric(18,2)"); 
 
-            // التواريخ ووتيرة الدفع
             builder.Property(c => c.StartDate).IsRequired();
             builder.Property(c => c.EndDate).IsRequired();
             builder.Property(c => c.PaymentFreq).IsRequired();
 
-            // 2. تحويل الـ Enums
+            // تحويل الـ Enums
             builder.Property(c => c.ContractStatus)
                 .HasConversion<byte>();
+            builder.Property(c => c.PaymentFreq)
+                .HasConversion<byte>(); 
 
-            // 3. العلاقات (الـ Foreign Keys موجودة في هذا الجدول)
+            
+            builder.HasCheckConstraint("CK_Contracts_ValidDates", "start_date < end_date");
 
-            // العقد والوحدة (Many Contracts -> One Unit)
+            builder.HasCheckConstraint("CK_Contracts_PositiveRent", "rent_amount > 0");
+
+         
+            builder.HasIndex(c => new { c.TenantId, c.UnitId });
+            builder.HasIndex(c => new { c.TenantId, c.RenterId });
+
             builder.HasOne(c => c.Unit)
                 .WithMany(u => u.Contracts)
                 .HasForeignKey(c => c.UnitId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // العقد والمستأجر (Many Contracts -> One Renter)
             builder.HasOne(c => c.Renter)
                 .WithMany(r => r.Contracts)
                 .HasForeignKey(c => c.RenterId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-          
-          
-
-            // الفلتر الخاص بالـ TenantId والـ Soft Delete يبقى في DbContext
         }
     }
 }

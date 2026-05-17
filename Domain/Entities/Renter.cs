@@ -14,7 +14,7 @@ namespace Domain.Entities
         public string NationalId { get; set; }
         public string PhoneNumber { get; set;}
         public  Guid?  UserId { set; get; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public User User { get; set;}
         public ICollection<Contract> Contracts { get; set; }

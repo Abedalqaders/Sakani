@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<Unit> Units { get; }
     DbSet<Notification> Notifications { get; }
 
+    DbSet<User> Users { get; }
 
     DatabaseFacade Database { get; }
 
