@@ -2,6 +2,7 @@
 using Application.Common.Interfaces.General;
 using Application.Common.Interfaces.Payment;
 using Application.Common.Interfaces.Renter;
+using Application.Common.Interfaces.User;
 using Application.Dto.Contract;
 using Domain.Entities;
 using Domain.Enums;
@@ -17,19 +18,21 @@ namespace Application.Services
         private readonly IRenterRepository _renterRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaymentRepository _paymentRepo;
-
+        private readonly ICurrentUserService _currentUserService;
         public ContractAppService(
             IContractRepository contractRepo,
             IGenericRepository<Unit> unitRepo,
             IRenterRepository renterRepo,
             IUnitOfWork unitOfWork,
-            IPaymentRepository paymentRepo)
+            IPaymentRepository paymentRepo,
+           ICurrentUserService currentUserService)
         {
             _contractRepo = contractRepo;
             _unitRepo = unitRepo;
             _renterRepo = renterRepo;
             _unitOfWork = unitOfWork;
             _paymentRepo = paymentRepo;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Guid> CreateContractAsync(CreateContractDto dto, CancellationToken ct)
@@ -71,7 +74,16 @@ namespace Application.Services
 
             return contract.Id;
         }
+        public async Task<MyContractDetailsDto> GetMyContractAsync(CancellationToken ct)
+        {
+            var renterid = _currentUserService.RenterId;
+            if (renterid == Guid.Empty)
+            {
+                return new MyContractDetailsDto();
+            }
+            return await _contractRepo.GetActiveContractForRenterAsync(renterid.Value, ct);
 
+        }
         public async Task<Guid> TerminateContractAsync(Guid contractId, CancellationToken ct)
         {
             var contract = await _contractRepo.GetContractWithUnitAsync(contractId, ct);

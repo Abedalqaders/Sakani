@@ -1,5 +1,6 @@
 ﻿using Application.Common.Interfaces.Accounting;
 using Application.Dto.Payment;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization; // تأكد من وجود هذا الـ using
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,9 +42,9 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IReadOnlyList<PaymentHistoryResponseDto>>> GetMyPaymentHistory(CancellationToken ct)
+        public async Task<ActionResult<IReadOnlyList<PaymentHistoryResponseDto>>> GetMyPaymentHistory([FromQuery] PaymentFilterType filter, CancellationToken ct)
         {
-            var history = await _accountingService.GetMyPaymentHistoryAsync(ct);
+            var history = await _accountingService.GetMyPaymentHistoryAsync(filter,ct);
             return Ok(history);
         }
 

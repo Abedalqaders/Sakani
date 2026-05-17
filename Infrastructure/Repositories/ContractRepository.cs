@@ -59,7 +59,22 @@ namespace Infrastructure.Repositories
                 })
                 .FirstOrDefaultAsync(ct);
         }
+        public async Task<MyContractDetailsDto?> GetActiveContractForRenterAsync(Guid renterId, CancellationToken ct)
+        {
+            return await _context.Set<Contract>()
+        .AsNoTracking().Where(c=> c.RenterId==renterId && c.ContractStatus == ContractStatus.Active).Select(c => new MyContractDetailsDto
+        {
+            ContractId = c.Id,
+            StartDate = c.StartDate,
+            EndDate = c.EndDate,
+            RentAmount = c.RentAmount,
+            ContractStatus = c.ContractStatus,
+            UnitNo = c.Unit.UnitNo,
+            PropertyName = c.Unit.Property.Name
+        })
+        .FirstOrDefaultAsync(ct);
 
+        }
         public async Task<IReadOnlyList<ContractBasicResponseDto?>> GetBasicContractsForTenantAsync(CancellationToken ct)
         { 
           return await _context.Set<Contract>()
