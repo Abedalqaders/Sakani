@@ -133,8 +133,13 @@ namespace Application.Services
             unit.RentPrice = dto.RentPrice;
             unit.PropertyId = dto.PropertyId;
             unit.UnitStatus = dto.UnitStatus;
+            
+            if (unit.UnitStatus == Domain.Enums.UnitStatus.Rented || unit.UnitStatus == Domain.Enums.UnitStatus.Rented)
+            {
+                unit.IsVacancyNotified = false; 
+            }
 
-            // الـ EF Core بتتبع التعديلات تلقائياً، فما في داعي لـ _repo.Update
+        
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 

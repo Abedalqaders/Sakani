@@ -18,5 +18,6 @@ namespace Domain.Entities
         public PaymentStatus PaymentStatus { get; set; }
         public Guid ContractId { get; set; }
         public Contract Contract { get; set; }  
+        public bool IsOverdueNotificationSent { get; set; } = false;
     }
 }

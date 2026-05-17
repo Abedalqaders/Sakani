@@ -16,6 +16,7 @@ namespace Domain.Entities
         public decimal RentPrice { get; set; }
         public Guid PropertyId { get; set; }
         public UnitStatus UnitStatus { get; set; }
+        public bool IsVacancyNotified { get; set; } = false;
 
         // Navigation Properties
         public Property Property { get; set; }

@@ -1,11 +1,10 @@
 ﻿namespace Domain.Enums
 {
     public enum NotificationType
-    {
-        PaymentReminder = 1,
-        PaymentOverdue = 2,
-        MaintenanceUpdate = 3,
-        ContractRenewal = 4,
-        SystemAlert = 5
+    { 
+        PaymentOverdue = 1,
+        MaintenanceEscalation = 2,     // مخصص لتصعيد تذاكر الصيانة المتأخرة (SLA)
+        ContractRenewalReminder = 3,   // مخصص لاقتراب موعد انتهاء العقد
+        ContractOverstayAlert = 4    // مخصص لحالة تجاوز مدة العقد الفعلية
     }
 }

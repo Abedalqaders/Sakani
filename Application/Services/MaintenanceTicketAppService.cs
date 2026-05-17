@@ -163,6 +163,13 @@ namespace Application.Services
             if (ticket.TicketStatus == TicketStatus.Closed )
                 throw new InvalidOperationException("Cannot change status of a cancelled ticket.");
 
+            // Reset escalation notification if reopened/put back to work
+            if ((dto.NewStatus == TicketStatus.Open || dto.NewStatus == TicketStatus.InProgress) && 
+                 ticket.TicketStatus != dto.NewStatus)
+            {
+                ticket.IsEscalationNotified = false;
+            }
+
             ticket.TicketStatus = dto.NewStatus;
 
             _ticketRepository.Update(ticket);

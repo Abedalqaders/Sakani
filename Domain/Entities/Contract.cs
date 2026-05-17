@@ -19,6 +19,8 @@ namespace Domain.Entities
         public Guid RenterId { get; set; }
         public ContractStatus ContractStatus { get; set; }
         public PaymentFrequency PaymentFreq { get; set; }
+        public bool IsExpirationReminderSent { get; set; } = false;
+        public bool IsOverstayNotificationSent { get; set; } = false;
 
         // Navigation Properties
         public Unit Unit { get; set; }

@@ -21,6 +21,7 @@ namespace Domain.Entities
         public string Subject { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public TicketStatus TicketStatus { get; set; } = TicketStatus.Open;
+        public bool IsEscalationNotified { get; set; } = false;
 
         // Navigation Properties
         public Unit Unit { get; set; } = null!;

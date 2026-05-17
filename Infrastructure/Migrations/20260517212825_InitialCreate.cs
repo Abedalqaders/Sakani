@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Create_With_Notifications : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -82,6 +82,7 @@ namespace Infrastructure.Migrations
                     rent_price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     property_id = table.Column<Guid>(type: "uuid", nullable: false),
                     unit_status = table.Column<byte>(type: "smallint", nullable: false),
+                    is_vacancy_notified = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -246,6 +247,8 @@ namespace Infrastructure.Migrations
                     renter_id = table.Column<Guid>(type: "uuid", nullable: false),
                     contract_status = table.Column<byte>(type: "smallint", nullable: false),
                     payment_freq = table.Column<byte>(type: "smallint", nullable: false),
+                    is_expiration_reminder_sent = table.Column<bool>(type: "boolean", nullable: false),
+                    is_overstay_notification_sent = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -280,6 +283,7 @@ namespace Infrastructure.Migrations
                     subject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     ticket_status = table.Column<byte>(type: "smallint", nullable: false),
+                    is_escalation_notified = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -316,6 +320,7 @@ namespace Infrastructure.Migrations
                     transaction_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     payment_status = table.Column<byte>(type: "smallint", nullable: false),
                     contract_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    is_overdue_notification_sent = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),

@@ -63,6 +63,7 @@ namespace Application.Services
             GeneratePaymentSchedule(contract, (byte)dto.PaymentFreq);
 
             unit.UnitStatus = UnitStatus.Rented;
+            unit.IsVacancyNotified = false;
             _unitRepo.Update(unit);
 
             _contractRepo.Add(contract);

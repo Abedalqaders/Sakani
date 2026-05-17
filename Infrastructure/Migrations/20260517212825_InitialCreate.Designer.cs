@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260510135401_Initial_Create_With_Notifications")]
-    partial class Initial_Create_With_Notifications
+    [Migration("20260517212825_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,14 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsExpirationReminderSent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_expiration_reminder_sent");
+
+                    b.Property<bool>("IsOverstayNotificationSent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_overstay_notification_sent");
 
                     b.Property<byte>("PaymentFreq")
                         .HasColumnType("smallint")
@@ -187,6 +195,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEscalationNotified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_escalation_notified");
 
                     b.Property<Guid>("RenterId")
                         .HasColumnType("uuid")
@@ -346,6 +358,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsOverdueNotificationSent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_overdue_notification_sent");
 
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("timestamp with time zone")
@@ -699,6 +715,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsVacancyNotified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_vacancy_notified");
 
                     b.Property<Guid>("PropertyId")
                         .HasColumnType("uuid")

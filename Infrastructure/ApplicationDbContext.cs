@@ -6,9 +6,10 @@
     using Domain.Entities;
     using Domain.Enums;
     using Microsoft.EntityFrameworkCore;
+    using Application.Interfaces;
     using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         private readonly Guid? _tenantId;
         private readonly ICurrentUserService _currentUserService;

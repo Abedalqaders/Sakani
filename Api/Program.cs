@@ -1,7 +1,6 @@
 using Api.Services;
-using Application.Common.Interfaces;
 using Application.Common.Interfaces.General;
-using Application.Services;
+using Application.Interfaces;
 using Application.Validators.Tenant;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -12,11 +11,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-//using Sakani.Application.Common.Interfaces;
-
-using Sakani.Application.Services;
-using Sakani.Infrastructure.Services;
-using System.Reflection;
 using System.Text;
 
 using InfrastructureUnitOfWork = Infrastructure.Repositories.UnitOfWork;
@@ -97,13 +91,13 @@ builder.Services.Scan(scan => scan
     )
     .AddClasses(classes => classes
         .Where(type => type.Name.EndsWith("Service")
-               && type != typeof(ExpiryBackGroundService))) 
+               && !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type)))
         .AsImplementedInterfaces()
         .WithScopedLifetime()
 
     .AddClasses(classes => classes
         .Where(type => type.Name.EndsWith("Service")
-               && type != typeof(ExpiryBackGroundService))) 
+               && !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type)))
         .AsSelf()
         .WithScopedLifetime()
 
@@ -116,6 +110,8 @@ builder.Services.Scan(scan => scan
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseSnakeCaseNamingConvention());
+
+builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
 
 var jwtKey = builder.Configuration["Jwt:Key"]
