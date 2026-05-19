@@ -97,14 +97,40 @@ namespace Application.Services
          .ToListAsync(ct); 
 
         }
-        public async Task<TicketResponseDto?> GetByIdAsync(Guid id, CancellationToken ct)
+
+        public async Task<TicketResponseDto?> GetByIdForRenterAsync(Guid id, CancellationToken ct)
         {
             var renterId = _currentUserService.RenterId.GetValueOrDefault();
             var ticket = await _ticketRepository.GetByIdAsync(id, ct);
-
-            if (ticket == null || ticket.RenterId != renterId)
+            
+            
+            if (ticket == null||ticket.RenterId!=renterId)
                 return null;
 
+            return new TicketResponseDto
+            {
+                Id = ticket.Id,
+                UnitId = ticket.UnitId,
+                UnitNo = ticket.Unit?.UnitNo ?? " ",
+                Subject = ticket.Subject,
+                Description = ticket.Description,
+                Status = ticket.TicketStatus,
+                CreatedAt = ticket.CreatedAt,
+
+                Images = ticket.Images?.Select(img => new TicketImageDto
+                {
+                    Id = img.Id,
+                    ImageUrl = img.ImagePath
+                }).ToList() ?? new List<TicketImageDto>()
+            };
+        }
+        public async Task<TicketResponseDto?> GetByIdForTenantAsync(Guid id, CancellationToken ct)
+        {
+       
+            var ticket = await _ticketRepository.GetByIdAsync(id, ct);
+
+            if (ticket == null)
+                return null;
             return new TicketResponseDto
             {
                 Id = ticket.Id,

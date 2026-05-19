@@ -42,12 +42,26 @@ namespace Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize] // „”„ÊÕ ··‹ Renter Ê «·‹ Tenant
+        [Authorize(Roles = "Tenant")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TicketResponseDto>> GetById(Guid id, CancellationToken ct)
         {
-            var ticket = await _ticketService.GetByIdAsync(id, ct);
+            var ticket = await _ticketService.GetByIdForTenantAsync(id, ct);
+
+            if (ticket == null)
+                return NotFound(new { message = $"Ticket with ID {id} was not found or access is denied." });
+
+            return Ok(ticket);
+        }
+
+        [HttpGet("renter/{id:guid}")]
+        [Authorize(Roles = "Renter")] 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<TicketResponseDto>> GetByForRenterId(Guid id, CancellationToken ct)
+        {
+            var ticket = await _ticketService.GetByIdForRenterAsync(id, ct);
 
             if (ticket == null)
                 return NotFound(new { message = $"Ticket with ID {id} was not found or access is denied." });

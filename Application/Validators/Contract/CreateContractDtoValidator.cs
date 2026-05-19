@@ -17,6 +17,9 @@ namespace Application.Validators.Contract
                 .NotEmpty().WithMessage("End date is required.")
                 .GreaterThan(x => x.StartDate).WithMessage("End date must be after the start date.");
 
+            RuleFor(x => x.EndDate)
+                .Must((model, endDate) => endDate <= model.StartDate.AddYears(5))
+                .WithMessage("The maximum contract duration is 5 years.");
 
             RuleFor(x => x.RentAmount)
                 .GreaterThan(0).WithMessage("Rent amount must be a positive value.");
