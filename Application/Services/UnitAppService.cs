@@ -1,6 +1,7 @@
 ﻿using Application.Common.Interfaces.General;
 using Application.Common.Interfaces.Property;
 using Application.Common.Interfaces.Unit;
+using Application.Common.Interfaces.User;
 using Application.Dto.Unit;
 using Domain.Entities;
 using System;
@@ -16,14 +17,23 @@ namespace Application.Services
         private readonly IUnitRepository _repo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPropertyRepository _propertyRepo;
-
-        public UnitAppService(IUnitRepository unitRepository, IUnitOfWork unitOfWork, IPropertyRepository propertyRepo)
+        private readonly ICurrentUserService _currentUserService;
+        public UnitAppService(IUnitRepository unitRepository, IUnitOfWork unitOfWork, IPropertyRepository propertyRepo,ICurrentUserService currentUserService)
         {
+            _currentUserService = currentUserService;
             _repo = unitRepository;
             _unitOfWork = unitOfWork;
             _propertyRepo = propertyRepo;
         }
-
+        public async Task<Guid> GetUnitIdByRenter(CancellationToken ct)
+        {
+            var renterid = _currentUserService.RenterId.Value;
+            if (renterid == Guid.Empty)
+            {
+                return Guid.Empty;
+            }
+            return await _repo.GetUnitIdByRenter(renterid, ct);
+        }
         public async Task<IReadOnlyList<UnitResponseDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
           

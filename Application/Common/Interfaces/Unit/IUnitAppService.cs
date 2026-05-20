@@ -15,6 +15,6 @@ namespace Application.Common.Interfaces.Unit
         Task<Guid> CreateAsync(CreateUnitDto dto, CancellationToken ct);
         Task UpdateAsync(UpdateUnitDto dto, CancellationToken ct);
         Task DeleteAsync(Guid id, CancellationToken ct);
-
+        Task<Guid> GetUnitIdByRenter(CancellationToken ct);
     }
 }

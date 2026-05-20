@@ -13,6 +13,13 @@ namespace Infrastructure.Repositories
         {
         
         }
+        public async Task<Guid> GetUnitIdByRenter(Guid renterid,CancellationToken ct)
+        {
+            return await _context.Contracts.AsNoTracking()
+         .Where(u => u.RenterId == renterid)
+         .Select(u => u.UnitId)
+         .FirstOrDefaultAsync(ct);
+        }
         public async Task<IReadOnlyList<Unit>> GetAllWithPropertyAsync(CancellationToken ct)
         {
             return await _context.Units

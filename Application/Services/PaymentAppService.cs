@@ -18,8 +18,10 @@ namespace Application.Services
         private readonly IPaymentRepository _paymentRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
-        public PaymentAppService(IPaymentRepository paymentRepo)
+        public PaymentAppService(IPaymentRepository paymentRepo,ICurrentUserService currentUserService, IUnitOfWork unitOfWork)
         {
+            _currentUserService = currentUserService;
+            _unitOfWork = unitOfWork;
             _paymentRepo = paymentRepo;
         }
         public async Task<string> PayWithCreditCardSimulatedAsync(PaymentSimulationDto dto, CancellationToken ct)
