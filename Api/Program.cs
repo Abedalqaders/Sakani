@@ -152,18 +152,24 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // إجبار النظام على تطبيق المايجريشن مهما كانت الحالة
         await context.Database.MigrateAsync();
 
-        // التأكد من حقن البيانات
-        await DbInitializer.SeedAsync(context);
+        // حقن البيانات الأساسية يعمل في جميع البيئات
+        await DbInitializer.SeedSystemEssentialsAsync(context);
 
-        Console.WriteLine("Database is ready and tables are created.");
+        // حقن البيانات الوهمية مقتصر على بيئة التطوير
+        if (app.Environment.IsDevelopment())
+        {
+            await DbInitializer.SeedDummyDataAsync(context);
+            Console.WriteLine("Seed dummy data injected (Development only).");
+        }
+
+        Console.WriteLine("Database is ready and tables are up to date.");
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Migration failed");
+        logger.LogError(ex, "Migration or Seeding failed");
     }
 }
 // If behind a reverse proxy or load balancer, forward X-Forwarded-* headers first

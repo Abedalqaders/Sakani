@@ -7,7 +7,6 @@
     using Domain.Enums;
     using Microsoft.EntityFrameworkCore;
     using Application.Interfaces;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
@@ -24,7 +23,6 @@
             _tenantId = tenantService.GetTenantId();
         }
 
-        // تعريف الجداول (DbSets)
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
@@ -37,14 +35,13 @@
         public DbSet<MaintenanceTicket> MaintenanceTickets { get; set; }
         public DbSet<TicketImage> Images { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // هذا السطر يغني عن كل الكود الطويل الذي كتبته للعلاقات والـ Enums
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-            // أبقِ فقط الفلاتر الديناميكية هنا لأنها تحتاج لمتغير _tenantId المحقون
             modelBuilder.Entity<Property>().HasQueryFilter(p => p.TenantId == _tenantId && !p.IsDeleted);
             modelBuilder.Entity<Unit>().HasQueryFilter(u => u.TenantId == _tenantId && !u.IsDeleted);
             modelBuilder.Entity<Contract>().HasQueryFilter(c => c.TenantId == _tenantId && !c.IsDeleted);
@@ -54,7 +51,6 @@
             modelBuilder.Entity<MaintenanceTicket>().HasQueryFilter(m => m.TenantId == _tenantId && !m.IsDeleted);
             modelBuilder.Entity<TicketImage>().HasQueryFilter(i => i.TenantId == _tenantId && !i.IsDeleted);
             modelBuilder.Entity<Notification>().HasQueryFilter(n => n.TenantId == _tenantId && !n.IsDeleted);
-            // فلاتر Soft Delete التي لا تعتمد على TenantId
             modelBuilder.Entity<Tenant>().HasQueryFilter(t => !t.IsDeleted);
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
         }
@@ -72,13 +68,13 @@
                         entry.Entity.CreatedAt = now;
                         entry.Entity.CreatedBy = userId;
 
-                        // هنا السحر: إذا كان الكيان يتبع لشركة (يرث من TenantEntity)
                         if (entry.Entity is TenantEntity tenantEntity)
                         {
-                            // نحقن الـ TenantId تلقائياً من التوكن إذا كان فارغاً
                             if (tenantEntity.TenantId == Guid.Empty)
                             {
-                                tenantEntity.TenantId = _currentUserService.TenantId ?? Guid.Empty;
+                                // رمي استثناء مباشر يمنع حفظ البيانات اليتيمة
+                                tenantEntity.TenantId = _currentUserService.TenantId
+                                    ?? throw new InvalidOperationException("Fatal error: Attempted to save tenant-specific data without a valid TenantId.");
                             }
                         }
                         break;
@@ -89,9 +85,9 @@
                         break;
 
                     case EntityState.Deleted:
-                        entry.State = EntityState.Modified; // نمنع الحذف الفعلي ونحوله لتعديل
-                        entry.Entity.IsDeleted = true;      // نغير حالة الحقل
-                        entry.Entity.UpdatedAt = now;       // نوثق متى تم الحذف
+                        entry.State = EntityState.Modified;
+                        entry.Entity.IsDeleted = true;
+                        entry.Entity.UpdatedAt = now;
                         entry.Entity.UpdatedBy = userId;
                         break;
                 }

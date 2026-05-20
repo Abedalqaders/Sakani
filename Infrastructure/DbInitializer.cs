@@ -4,25 +4,16 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 public static class DbInitializer
 {
-    public static async Task SeedAsync(ApplicationDbContext context)
+    // الدالة الأولى: البيانات الأساسية التي يحتاجها النظام للعمل في بيئة الإنتاج
+    public static async Task SeedSystemEssentialsAsync(ApplicationDbContext context)
     {
-        // 0. المعرفات الثابتة
         var superAdminUserId = Guid.Parse("10000000-0000-0000-0000-000000000001");
-        var tenant1ManagerUserId = Guid.Parse("20000000-0000-0000-0000-000000000001");
-        var tenant2ManagerUserId = Guid.Parse("20000000-0000-0000-0000-000000000002");
-        var renterUser1Id = Guid.Parse("30000000-0000-0000-0000-000000000001");
-        var renterUser2Id = Guid.Parse("30000000-0000-0000-0000-000000000002");
-        var tenant1Id = Guid.Parse("d28888e9-2ba9-473a-a40f-e38cb54f9b35");
-        var tenant2Id = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479");
-
         var now = DateTime.UtcNow;
 
-        // 1. الأدوار (Roles)
         if (!await context.Roles.AnyAsync())
         {
             await context.Roles.AddRangeAsync(new List<Role>
@@ -34,7 +25,6 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        // 2. إنشاء الـ SuperAdmin
         if (!await context.Users.AnyAsync(u => u.Id == superAdminUserId))
         {
             await context.Users.AddAsync(new User
@@ -49,8 +39,19 @@ public static class DbInitializer
             });
             await context.SaveChangesAsync();
         }
+    }
 
-        // 3. تعريف الشركات ومديريها (Tenants)
+    // الدالة الثانية: البيانات الوهمية المخصصة لبيئة التطوير والاختبار
+    public static async Task SeedDummyDataAsync(ApplicationDbContext context)
+    {
+        var tenant1ManagerUserId = Guid.Parse("20000000-0000-0000-0000-000000000001");
+        var tenant2ManagerUserId = Guid.Parse("20000000-0000-0000-0000-000000000002");
+        var renterUser1Id = Guid.Parse("30000000-0000-0000-0000-000000000001");
+        var renterUser2Id = Guid.Parse("30000000-0000-0000-0000-000000000002");
+        var tenant1Id = Guid.Parse("d28888e9-2ba9-473a-a40f-e38cb54f9b35");
+        var tenant2Id = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        var now = DateTime.UtcNow;
+
         if (!await context.Tenants.AnyAsync(t => t.Id == tenant1Id))
         {
             await context.Tenants.AddAsync(new Tenant { Id = tenant1Id, Name = "Amman Real Estate Co", AddressCity = "Amman", AddressRegion = "Abdali", AddressStreet = "Queen Rania St", Email = "info@amman-re.com", PhoneNumber = "0791111111", Status = TenantStatus.Active, CreatedAt = now });
@@ -64,7 +65,6 @@ public static class DbInitializer
         }
         await context.SaveChangesAsync();
 
-        // 4. إضافة العقارات والمستأجرين
         var ammanProp1Id = Guid.Parse("3a59cc1c-f8d9-4ba4-9c9b-7ee0f5283af5");
         var ammanProp2Id = Guid.Parse("c2ce1c24-a891-4e58-af66-c3c5a1faff90");
         var zarqaPropId = Guid.Parse("4352708a-0656-404a-9475-da2622205340");
@@ -86,7 +86,6 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        // 5. تعريف الوحدات (Units)
         var unit1Id = Guid.Parse("11111111-2222-3333-4444-555566667777");
         var unit2Id = Guid.Parse("22222222-3333-4444-5555-666677778888");
         var unit3Id = Guid.Parse("33333333-4444-5555-6666-777788889999");
@@ -99,7 +98,6 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        // 6. تجهيز العقارات والدفعات (TEST CASES)
         var contract1Id = Guid.Parse("99999999-8888-7777-6666-555544443333");
         if (!await context.Contracts.IgnoreQueryFilters().AnyAsync(c => c.Id == contract1Id))
         {
@@ -199,7 +197,6 @@ public static class DbInitializer
         }
         await context.SaveChangesAsync();
 
-        // 7. المصاريف كاملة (Expenses)
         var expense1Id = Guid.Parse("aaaa1111-2222-3333-4444-555566667777");
         var expense2Id = Guid.Parse("bbbb1111-2222-3333-4444-555566667777");
         var expense3Id = Guid.Parse("cccc1111-2222-3333-4444-555566667777");
@@ -220,54 +217,14 @@ public static class DbInitializer
         }
         await context.SaveChangesAsync();
 
-        // 8. إضافة حقل الإشعارات للتجربة (Notifications)
-        // 8. إضافة حقل الإشعارات للتجربة (Notifications)
         if (!await context.Notifications.IgnoreQueryFilters().AnyAsync())
         {
             await context.Notifications.AddRangeAsync(new List<Notification>
-    {
-        new Notification
-        {
-            Id = Guid.NewGuid(),
-            UserId = tenant1ManagerUserId,
-            SenderId = null,
-            Title = "تأخر في سداد الدفعة",
-            Message = "تنبيه: المستأجر عمر العليان متأخر في سداد الدفعة المستحقة للعقد رقم 1.",
-            Type = NotificationType.PaymentOverdue,
-            ReferenceId = contract1Id,
-            IsRead = false,
-            TenantId = tenant1Id,
-            CreatedAt = now
-        },
-        new Notification
-        {
-            Id = Guid.NewGuid(),
-            UserId = tenant1ManagerUserId,
-            SenderId = null,
-            Title = "تصعيد تذكرة صيانة متأخرة",
-            Message = "تم تصعيد تذكرة تسريب المياه لعدم اتخاذ إجراء ضمن المدة المحددة.",
-            Type = NotificationType.MaintenanceEscalation,
-            ReferenceId = ticket1Id,
-            IsRead = false,
-            TenantId = tenant1Id,
-            CreatedAt = now.AddHours(-2)
-        },
-        
-        new Notification
-        {
-            Id = Guid.NewGuid(),
-            UserId = tenant2ManagerUserId,
-            SenderId = null,
-            Title = "تنبيه: اقتراب انتهاء صلاحية العقد",
-            Message = "العقد رقم 2 الخاص بالوحدة C-50 سينتهي خلال 15 يوماً.",
-            Type = NotificationType.ContractRenewalReminder,
-            ReferenceId = contract2Id,
-            IsRead = true,
-            ReadAt = now.AddHours(-1),
-            TenantId = tenant2Id,
-            CreatedAt = now.AddDays(-1)
-        }
-    });
+            {
+                new Notification { Id = Guid.NewGuid(), UserId = tenant1ManagerUserId, SenderId = null, Title = "تأخر في سداد الدفعة", Message = "تنبيه: المستأجر عمر العليان متأخر في سداد الدفعة المستحقة للعقد رقم 1.", Type = NotificationType.PaymentOverdue, ReferenceId = contract1Id, IsRead = false, TenantId = tenant1Id, CreatedAt = now },
+                new Notification { Id = Guid.NewGuid(), UserId = tenant1ManagerUserId, SenderId = null, Title = "تصعيد تذكرة صيانة متأخرة", Message = "تم تصعيد تذكرة تسريب المياه لعدم اتخاذ إجراء ضمن المدة المحددة.", Type = NotificationType.MaintenanceEscalation, ReferenceId = ticket1Id, IsRead = false, TenantId = tenant1Id, CreatedAt = now.AddHours(-2) },
+                new Notification { Id = Guid.NewGuid(), UserId = tenant2ManagerUserId, SenderId = null, Title = "تنبيه: اقتراب انتهاء صلاحية العقد", Message = "العقد رقم 2 الخاص بالوحدة C-50 سينتهي خلال 15 يوماً.", Type = NotificationType.ContractRenewalReminder, ReferenceId = contract2Id, IsRead = true, ReadAt = now.AddHours(-1), TenantId = tenant2Id, CreatedAt = now.AddDays(-1) }
+            });
             await context.SaveChangesAsync();
         }
     }
