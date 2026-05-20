@@ -178,6 +178,9 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -189,6 +192,7 @@ else
     // Enforce HSTS in production
     app.UseHsts();
 }
+
 
 // Ensure HTTPS redirect runs after forwarded headers and before auth/CORS
 app.UseHttpsRedirection();
