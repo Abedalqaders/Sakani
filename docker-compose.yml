@@ -1,6 +1,6 @@
 services:
   sakani-api:
-    image: sakani_api:latest # استبدل باسم الصورة الخاصة بك
+    image: sakani_api:latest 
     container_name: sakani_api_prod
     restart: always
     ports:
