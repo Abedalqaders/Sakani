@@ -9,5 +9,6 @@ namespace Application.Common.Interfaces.Unit
         Task<DomainUnit?> GetByIdWithPropertyAsync(Guid id, CancellationToken ct);
         Task<IReadOnlyList<DomainUnit>> GetUnitsByPropertyAsync(Guid propertyId, CancellationToken ct);
         Task<decimal> GetOccupancyRateAsync(CancellationToken ct);
+        Task<Guid> GetUnitIdByRenter(Guid renterid,CancellationToken ct);
     }
 }

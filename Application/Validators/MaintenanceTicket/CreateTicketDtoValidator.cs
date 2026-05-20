@@ -7,8 +7,7 @@ namespace Application.Validators.MaintenanceTicket
     {
         public CreateTicketDtoValidator()
         {
-            RuleFor(x => x.UnitId)
-                .NotEmpty().WithMessage("Unit ID is required.");
+          
 
             RuleFor(x => x.Subject)
                 .NotEmpty().WithMessage("Subject is required.")

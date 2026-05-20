@@ -10,7 +10,7 @@ namespace Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Tenant")] // عدلها إلى "Renter" إذا كان هذا هو الاسم المعتمد في الـ Identity عندك
+// عدلها إلى "Renter" إذا كان هذا هو الاسم المعتمد في الـ Identity عندك
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentAppService _paymentService;
@@ -20,7 +20,7 @@ namespace Api.Controllers
             _paymentService = paymentService;
             _accountingRepo = accountingService;
         }
-
+        [Authorize(Roles = "Renter")]
         [HttpPost("simulate")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -36,7 +36,8 @@ namespace Api.Controllers
                 TransactionId = transactionId
             });
         }
-       [HttpGet("{id:guid}")]
+        [Authorize(Roles = "Renter")]
+        [HttpGet("{id:guid}")]
 [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PaymentDetailsDto>> GetPaymentDetails(Guid id, CancellationToken ct)

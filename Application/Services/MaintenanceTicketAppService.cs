@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Application.Common.Interfaces.Unit;
 namespace Application.Services
 {
     public class MaintenanceTicketAppService: IMaintenanceTicketAppService
@@ -20,29 +21,30 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
         private readonly ITicketImageRepository _imageRepository;
-
+        private readonly IUnitAppService _unitAppService;
         public MaintenanceTicketAppService(
             IMaintenanceTicketRepository ticketRepository,
             ICurrentUserService currentUserService, // تصحيح النوع هنا
             IUnitOfWork unitOfWork,
             IFileService fileService, // إضافة النقص
-            ITicketImageRepository imageRepository) // إضافة النقص
+            ITicketImageRepository imageRepository, IUnitAppService unitAppService) // إضافة النقص
         {
             _ticketRepository = ticketRepository;
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
             _fileService = fileService;
             _imageRepository = imageRepository;
+            _unitAppService = unitAppService;
         }
         public async Task<Guid> CreateTicketAsync(CreateTicketDto dto, CancellationToken ct)
         {
             var renterId = _currentUserService.RenterId.GetValueOrDefault(); 
-
+            var unitid = await _unitAppService.GetUnitIdByRenter(ct);
             var ticket = new MaintenanceTicket
             {
                 Id = Guid.NewGuid(),
                 RenterId = renterId,
-                UnitId = dto.UnitId,
+                UnitId = unitid,
                 Subject = dto.Subject,
                 Description = dto.Description,
                 TicketStatus = TicketStatus.Open,
