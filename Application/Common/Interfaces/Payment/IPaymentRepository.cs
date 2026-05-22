@@ -12,5 +12,6 @@ namespace Application.Common.Interfaces.Payment
     {
         Task<bool> CancelPaymentForContract(Guid ContractId, CancellationToken ct);
         Task<Domain.Entities.Payment?> GetPaymentWithContractAsync(Guid paymentId, Guid renterId,CancellationToken ct);
+        Task<bool> CanPayInstallmentAsync(Domain.Entities.Payment payment, CancellationToken ct);
     }
 }

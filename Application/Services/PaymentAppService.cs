@@ -36,7 +36,12 @@ namespace Application.Services
 
             if (payment.PaymentStatus == PaymentStatus.Paid)
                 throw new InvalidOperationException("This payment has already been paid.");
-
+            if( ! await _paymentRepo.CanPayInstallmentAsync(payment, ct))
+            {
+                throw new System.ComponentModel.DataAnnotations.ValidationException(
+          "You must pay your older unpaid installments first before paying this one."
+      );
+            }
             // اللوجيك تبع المحاكاة
             await Task.Delay(3000, ct);
             var transactionId = "TRX-" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
