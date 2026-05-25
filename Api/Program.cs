@@ -16,7 +16,7 @@ using System.Text;
 using InfrastructureUnitOfWork = Infrastructure.Repositories.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddHostedService<NotificationBackgroundService>();
 // Add services to the container.
 builder.Services.AddControllers();
 
