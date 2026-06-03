@@ -12,7 +12,6 @@ namespace Application.Dto.Renter
         public string LastName { get; set; }
         public string NationalId { get; set; }
         public string PhoneNumber { get; set; }
-        public string Email { get; set; }    // To create the User account
         public string Description { get; set; }
 
     }

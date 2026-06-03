@@ -20,9 +20,6 @@ namespace Application.Validators.Renter
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
                 .Matches(@"^\d{10}$").WithMessage("Invalid phone number format.");
-
-            RuleFor(x => x.Email)
-                .NotEmpty().EmailAddress().WithMessage("A valid email is required for the renter's account.");
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required.")
                 .MaximumLength(50).WithMessage("First name cannot exceed 50 characters.");
