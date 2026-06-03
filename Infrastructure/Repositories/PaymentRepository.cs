@@ -27,7 +27,7 @@ namespace Infrastructure.Repositories
                 return false;
             bool hasEarlierUnpaid = await _context.Set<Payment>()
         .AnyAsync(p =>
-          p.PaymentStatus!=Domain.Enums.PaymentStatus.Paid  &&p.ContractId == payment.ContractId &&
+          (p.PaymentStatus==Domain.Enums.PaymentStatus.Pending|| p.PaymentStatus==PaymentStatus.Overdue) &&p.ContractId == payment.ContractId &&
             p.DueDate < payment.DueDate, ct);
             return !hasEarlierUnpaid;
 
