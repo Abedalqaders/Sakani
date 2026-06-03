@@ -29,6 +29,8 @@ public class TenantAppService : ITenantAppService
             Email = t.Email,
             PhoneNumber = t.PhoneNumber,
             AddressCity = t.AddressCity,
+            AddressStreet = t.AddressStreet,
+            AddressRegion = t.AddressRegion,
             Status = t.Status.ToString()
         }).ToList();
     }
@@ -45,6 +47,8 @@ public class TenantAppService : ITenantAppService
             Email = tenant.Email,
             PhoneNumber = tenant.PhoneNumber,
             AddressCity = tenant.AddressCity,
+            AddressStreet = tenant.AddressStreet,
+            AddressRegion = tenant.AddressRegion,
             Status = tenant.Status.ToString()
         };
     }

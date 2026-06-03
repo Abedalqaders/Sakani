@@ -7,5 +7,7 @@ public class TenantResponseDto
     public string Email { get; set; }
     public string PhoneNumber { get; set; }
     public string AddressCity { get; set; }
+    public string AddressStreet { get; set; }
+    public string AddressRegion { get; set; }
     public string Status { get; set; }
 }
