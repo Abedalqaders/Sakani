@@ -74,11 +74,13 @@ namespace Infrastructure.Repositories
         public async Task<decimal> GetTotalCollectedMonth(int month, int year, CancellationToken ct)
         {
             var startDate = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
-            var endDate = startDate.AddMonths(1).AddTicks(-1);
+            var firstDayOfNextMonth = startDate.AddMonths(1);
 
             return await _context.Set<Payment>()
                 .AsNoTracking()
-                .Where(p => p.DueDate >= startDate && p.DueDate <= endDate && p.PaymentStatus == PaymentStatus.Paid)
+                .Where(p => p.ActualPaymentDate >= startDate &&
+                            p.ActualPaymentDate < firstDayOfNextMonth &&
+                            p.PaymentStatus == PaymentStatus.Paid)
                 .SumAsync(p => (decimal?)p.Amount, ct) ?? 0m;
         }
 
