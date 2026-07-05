@@ -1,67 +1,89 @@
-# 🏢 Real Estate SaaS - Backend 
+<div align="center">
+
+# 🏠 Sakani
+### Real-State Management System — Backend API
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512bd4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Entity Framework Core](https://img.shields.io/badge/EF%20Core-ORM-6f42c1)](https://learn.microsoft.com/en-us/ef/core/)
 [![Docker](https://img.shields.io/badge/Docker-Container-2496ed?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Architecture](https://img.shields.io/badge/Architecture-Onion-orange)](#-architecture)
 
-A robust multi-tenant SaaS platform designed for professional real estate management. This backend handles data isolation, automated migrations, and complex contract logic.
+A graduation project by the **Faculty of Information Technology**, **The World Islamic Sciences and Education University (WISE)**.
 
-## 🚀 Quick Start Guide
+</div>
 
-Follow these steps to synchronize the development environment on your local machine.
+---
 
-### 1. Prerequisites 📋
-Ensure the following are installed:
-* **Docker Desktop** (To run the database)
-* **.NET 8 SDK** (To run the API)
-* **DataGrip** or **pgAdmin** (To manage data)
+## 🎥 Demo Video
 
-### 2. Infrastructure Setup (Docker) 🐳
-We use Docker to spin up the PostgreSQL instance instantly without manual installation.
 
-1. Open your terminal in the project root.
-2. Run the command:
-   docker-compose up -d
-3. **Verify:** Run `docker ps`. You should see the `realestate_postgres` container running on port `5432`.
 
-## 🛠️ Database Configuration
 
-### Entity Framework Migrations
-The schema is managed via EF Core. You must sync your local database after the Docker container is active.
+https://github.com/user-attachments/assets/c944c158-8760-45cc-9d9f-9c7460c3225f
 
-1. Open the solution in **Visual Studio**.
-2. Open **Package Manager Console**.
-3. Set **Default Project** to `Infrastructure`.
-4. Set **Startup Project** to `API`.
-5. Run the following command:
-   Update-Database
 
-## 🗄️ Database Management (DataGrip)
+---
 
-Connect **DataGrip** to the Dockerized database using these settings:
+## 📖 Abstract
 
-| Property | Value |
-| :--- | :--- |
-| **Driver** | PostgreSQL |
-| **Host** | `localhost` |
-| **Port** | `5432` |
-| **User** | `postgres` |
-| **Password** | 'MyPassword1234'|
-| **Database** | `Sakani` |
+**Sakani** is a multi-tenant, web-based Property Management System that digitizes the rental lifecycle for independent landlords — property & unit setup, lease contracts, rent and expense tracking, and maintenance ticketing — replacing manual paperwork and spreadsheets. This repository contains the **backend**: a secure ASP.NET Core Web API built with Onion Architecture, Entity Framework Core, and PostgreSQL, isolating each landlord's data through strict multi-tenancy.
 
-> [!TIP]
-> If tables are missing after connecting: Right-click Connection -> Properties -> Schemas -> Check All databases or public.
+---
 
-## 🏗️ Project Architecture
-The project follows **N-Tier/Clean Architecture** principles:
+## ✨ Key Features
 
-* **Domain:** Core Entities and Business Enums.
-* **Application:** Business logic, DTOs, and Interfaces.
-* **Infrastructure:** PostgreSQL Implementation, DbContext, and Migrations.
-* **API:** REST Endpoints, Middlewares, and Authentication.
+- 🔑 JWT authentication with role-based access (`Super Admin`, `Landlord`, `Renter`)
+- 🏢 Property & unit portfolio management
+- 📄 Lease contract creation with automated payment scheduling
+- 💰 Rent payment & expense tracking
+- 🛠️ Maintenance ticketing with image uploads
+- 🔔 Automated notifications (payment reminders, contract expiry)
+- 🧾 Full auditing (`created_at`/`updated_at`/`by`) and soft delete on every record
+- 🔒 Strict per-landlord data isolation (multi-tenancy)
 
-## ⚠️ Troubleshooting
+---
 
-* **Port 5432 Conflict:** If you have a local PostgreSQL service running, stop it or change the host port in `docker-compose.yml`.
-* **Docker Daemon:** Ensure Docker Desktop is fully loaded (Green icon) before running commands.
-* **Update-Database Failure:** Verify the ConnectionStrings in appsettings.json matches the credentials in your Docker file.connecting: Right-click Connection -> Properties -> Schemas -> Check All databases or public.🏗️ Project ArchitectureThe project follows N-Tier/Clean Architecture principles:Domain: Core Entities and Business Enums.Application: Business logic, DTOs, and Interfaces.Infrastructure: PostgreSQL Implementation, DbContext, and Migrations.API: REST Endpoints, Middlewares, and Authentication.⚠️ TroubleshootingPort 5432 Conflict: If you have a local PostgreSQL service running, stop it or change the host port in docker-compose.yml.Docker Daemon: Ensure Docker Desktop is fully loaded (Green icon) before running commands.Update-Database Failure: Verify the ConnectionStrings in appsettings.json matches the credentials in your Docker file.
+## 🧰 Tech Stack
+
+`C#` · `ASP.NET Core (.NET 8)` · `Onion Architecture` · `Entity Framework Core` · `PostgreSQL` · `JWT / RBAC` · `Docker` · `Swagger`
+
+---
+
+## 🏗️ Architecture
+
+The API follows **Onion Architecture** — dependencies point inward, toward the domain:
+
+```
+Api  →  Application  →  Domain  ←  Infrastructure
+```
+
+| Layer | Responsibility |
+|---|---|
+| **Domain** | Core entities & enums — no external dependencies |
+| **Application** | Business logic, DTOs, service interfaces |
+| **Infrastructure** | EF Core `DbContext`, PostgreSQL, repositories, migrations |
+| **Api** | Controllers, JWT middleware, Swagger — the only layer exposed publicly |
+
+Multi-tenancy is enforced via a global EF Core query filter on `landlord_id`, so every query is automatically scoped to the current landlord.
+
+---
+
+## 🚀 Quick Start
+
+```bash
+docker-compose up -d      # start PostgreSQL
+cd Api
+dotnet run                 # run the API (Swagger at /swagger)
+```
+
+---
+
+## 👥 Team & Supervisor
+
+| Role | Name |
+|---|---|
+| 🧭 Team Lead / Backend | [AbdAlqader Al Sadi](https://github.com/Abedalqaders) |
+| ⚙️ Backend | [Osama Al Kharoubi](https://github.com/fakeosama1) |
+| 🎨 Frontend | [Mutaz Abusini](https://github.com/mutazabusini) |
+| 🎨 Frontend | [NourAldin AbuSharkh](https://github.com/NoorAS31) |
