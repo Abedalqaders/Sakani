@@ -1,9 +1,0 @@
-services:
-  sakani-api:
-    image: sakani_api:latest 
-    container_name: sakani_api_prod
-    restart: always
-    ports:
-      - "80:8080" 
-    env_file:
-      - .env.production
