@@ -38,6 +38,7 @@ namespace Application.Services
                 Description = dto.Description ?? string.Empty,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
+                // UserId is null for now until you integrate Identity
             };
 
             _repository.Add(renter);

@@ -21,17 +21,6 @@ namespace Infrastructure.Repositories
             return await _context.Set<Payment>()
         .FirstOrDefaultAsync(p => p.Id == paymentId && p.Contract.RenterId == renterId, ct);
         }
-        public async Task<bool> CanPayInstallmentAsync(Payment payment, CancellationToken ct)
-        {
-            if (payment == null)
-                return false;
-            bool hasEarlierUnpaid = await _context.Set<Payment>()
-        .AnyAsync(p =>
-          (p.PaymentStatus==Domain.Enums.PaymentStatus.Pending|| p.PaymentStatus==PaymentStatus.Overdue) &&p.ContractId == payment.ContractId &&
-            p.DueDate < payment.DueDate, ct);
-            return !hasEarlierUnpaid;
-
-        }
         public async Task<bool> CancelPaymentForContract(Guid ContractId, CancellationToken ct)
         {
             var payments = await _context.Set<Payment>()

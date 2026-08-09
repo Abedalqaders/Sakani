@@ -16,7 +16,7 @@ using System.Text;
 using InfrastructureUnitOfWork = Infrastructure.Repositories.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddHostedService<NotificationBackgroundService>();
+
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -178,9 +178,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -192,7 +189,6 @@ else
     // Enforce HSTS in production
     app.UseHsts();
 }
-
 
 // Ensure HTTPS redirect runs after forwarded headers and before auth/CORS
 app.UseHttpsRedirection();
