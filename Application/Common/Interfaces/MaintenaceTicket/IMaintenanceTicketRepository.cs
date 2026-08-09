@@ -13,6 +13,7 @@ namespace Application.Common.Interfaces.MaintenaceTicket
 
         IQueryable<MaintenanceTicket> GetByRenterIdAsync(Guid renterId);
         Task<IReadOnlyList<MaintenanceTicket>> GetFilteredAsync(TicketFilterDto filter, CancellationToken ct = default);
+        Task<List<TicketResponseDto>> GetTicketsByRenterIdAsync(Guid renterId, CancellationToken ct = default);
 
     }
 }

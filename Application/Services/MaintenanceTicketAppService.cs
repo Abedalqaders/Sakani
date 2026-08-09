@@ -5,12 +5,6 @@ using Application.Common.Interfaces.General;
 using Application.Dto.MaintenanceTicket;
 using Domain.Entities;
 using Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Application.Common.Interfaces.Unit;
 namespace Application.Services
 {
@@ -64,7 +58,6 @@ namespace Application.Services
             if (ticket == null || ticket.RenterId != renterId)
                 throw new KeyNotFoundException("Ticket not found or access denied.");
 
-            // Business Rule: لا يمكن تعديل التذكرة إذا استلمها الفني
             if (ticket.TicketStatus != TicketStatus.Open)
                 throw new InvalidOperationException("Cannot update ticket. Management has already started processing it.");
 
@@ -77,27 +70,10 @@ namespace Application.Services
         public async Task<IReadOnlyList<TicketResponseDto>> GetMyTicketsAsync(CancellationToken ct)
         {
             var renterId =  _currentUserService.RenterId.GetValueOrDefault();
-            var query =   _ticketRepository.GetByRenterIdAsync(renterId);
+            if(renterId == Guid.Empty)
+                throw new InvalidOperationException("Renter ID is not available.");
 
-            return await query
-         .OrderByDescending(t => t.CreatedAt)
-         .Select(t => new TicketResponseDto
-         {
-             Id = t.Id,
-             UnitId = t.UnitId,
-             UnitNo = t.Unit.UnitNo,
-             Subject = t.Subject,
-             Description = t.Description,
-             Status = t.TicketStatus,
-             CreatedAt = t.CreatedAt,
-             Images = t.Images.Select(img => new TicketImageDto
-             {
-                 Id = img.Id,
-                 ImageUrl = img.ImagePath
-             }).ToList()
-         })
-         .ToListAsync(ct); 
-
+            return await _ticketRepository.GetTicketsByRenterIdAsync(renterId, ct);
         }
 
         public async Task<TicketResponseDto?> GetByIdForRenterAsync(Guid id, CancellationToken ct)

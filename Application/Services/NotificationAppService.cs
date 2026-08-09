@@ -2,12 +2,6 @@ using Application.Common.Interfaces.General;
 using Application.Common.Interfaces.Notification;
 using Application.Common.Interfaces.User;
 using Application.Dto.Notification;
-using Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {

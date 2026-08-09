@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces.MaintenaceTicket;
+using Application.Common.Interfaces.User;
 using Application.Dto.MaintenanceTicket;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +12,10 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    // 1. الوراثة من GenericRepository توفر لك Add, Update, Delete, GetByIdAsync مجاناً
     public class MaintenanceTicketRepository : GenericRepository<MaintenanceTicket>, IMaintenanceTicketRepository
     {
         private readonly ApplicationDbContext _context;
 
-        // 2. تمرير الـ DbContext للـ Base Class
         public MaintenanceTicketRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
@@ -24,12 +23,12 @@ namespace Infrastructure.Repositories
         public override async Task<MaintenanceTicket?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .Include(t => t.Unit)    // لجلب بيانات الشقة
-                .Include(t => t.Images)  // لجلب الصور
+                .Include(t => t.Unit)
+                .Include(t => t.Images)
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }
-        // 3. كتابة الدوال المخصصة فقط التي لا توجد في الـ Generic Repository
-        public  IQueryable<MaintenanceTicket> GetByRenterIdAsync(Guid renterId)
+
+        public IQueryable<MaintenanceTicket> GetByRenterIdAsync(Guid renterId)
         {
             return _context.MaintenanceTickets.AsNoTracking();
         }
@@ -57,11 +56,34 @@ namespace Infrastructure.Repositories
             if (filter.ToDate.HasValue)
                 query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
 
-            // ننفذ الاستعلام في النهاية
+
             return await query
                 .OrderByDescending(t => t.CreatedAt)
                 .AsNoTracking()
                 .ToListAsync(ct);
         }
+        public async Task<List<TicketResponseDto>> GetTicketsByRenterIdAsync(Guid renterId, CancellationToken ct)
+        {
+            return await _context.MaintenanceTickets
+                .AsNoTracking()
+                .Where(t => t.RenterId == renterId)
+                .OrderByDescending(t => t.CreatedAt)
+                .Select(t => new TicketResponseDto
+                {
+                    Id = t.Id,
+                    UnitId = t.UnitId,
+                    UnitNo = t.Unit.UnitNo,
+                    Subject = t.Subject,
+                    Description = t.Description,
+                    Status = t.TicketStatus,
+                    CreatedAt = t.CreatedAt,
+                    Images = t.Images.Select(img => new TicketImageDto
+                    {
+                        Id = img.Id,
+                        ImageUrl = img.ImagePath
+                    }).ToList()
+                })
+                .ToListAsync(ct);
+        }
     }
-}
+    }

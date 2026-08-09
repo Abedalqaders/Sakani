@@ -3,13 +3,8 @@ using Application.Common.Interfaces.General;
 using Application.Common.Interfaces.Payment;
 using Application.Common.Interfaces.User;
 using Application.Dto.Payment;
-using Domain.Entities;
 using Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Services
 {
