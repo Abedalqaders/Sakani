@@ -24,11 +24,6 @@ public class UnitsController : ControllerBase
     {
         var units = await _unitService.GetAllAsync(cancellationToken);
 
-        if (units.Count == 0)
-        {
-            return NotFound("No Units Found!");
-        }
-
         return Ok(units);
     }
 
@@ -53,20 +48,14 @@ public class UnitsController : ControllerBase
     public async Task<ActionResult<IReadOnlyList<UnitResponseDto>>> GetUnitsByPropertyId(Guid propertyId, CancellationToken cancellationToken)
     {
         var units = await _unitService.GetUnitsByPropertyIdAsync(propertyId, cancellationToken);
-
-        if (units.Count == 0)
-        {
-            return NotFound($"No units found for Property ID {propertyId}.");
-        }
-
         return Ok(units);
     }
 
     [HttpPost(Name = "CreateUnit")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)] // ضروري لأن السيرفيس ترمي KeyNotFoundException
-    [ProducesResponseType(StatusCodes.Status403Forbidden)] // في حال رميت UnauthorizedAccessException من السيرفيس
+    [ProducesResponseType(StatusCodes.Status404NotFound)] 
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<Guid>> CreateUnit([FromBody] CreateUnitDto dto, CancellationToken cancellationToken)
     {
 
@@ -88,8 +77,7 @@ public class UnitsController : ControllerBase
       
             await _unitService.UpdateAsync(dto, cancellationToken);
             return NoContent();
-        
-      
+
     }
 
     [HttpDelete("{id:guid}", Name = "DeleteUnit")]
@@ -97,11 +85,8 @@ public class UnitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUnit(Guid id, CancellationToken cancellationToken)
-    {
-        
+    {     
             await _unitService.DeleteAsync(id, cancellationToken);
             return NoContent();
-        
-      
     }
 }

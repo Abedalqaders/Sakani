@@ -17,14 +17,20 @@ public class ContractController : ControllerBase
 
     [HttpGet("{id:guid}")]
     [Authorize(Roles = "Tenant")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ContractResponseDto>> GetById(Guid id, CancellationToken ct)
     {
         var contract = await _contractAppService.GetContractWithPaymentsAsync(id, ct);
+        if (contract == null) {
+            return NotFound("Contract not found");
+        }
         return Ok(contract);
     }
 
     [HttpPost]
     [Authorize(Roles = "Tenant")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateContractDto dto, CancellationToken ct)
     {
        
@@ -34,18 +40,16 @@ public class ContractController : ControllerBase
     }
     [HttpGet("my-active")]
     [Authorize(Roles = "Renter")]
-    [ProducesResponseType(typeof(MyContractDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MyContractDetailsDto>> GetMyActiveContract(CancellationToken ct)
     {
         var contract = await _contractAppService.GetMyContractAsync(ct);
 
-        // هنا بنحصد فائدة استخدام FirstOrDefaultAsync
-        // إذا النتيجة null، بنرجع 404 بدل ما يضرب السيرفر Error 500
         if (contract == null)
         {
    
-            return NotFound(new { message = "There is no active contract associated with this account at this time." });
+            return NotFound("No Contract Found");
         }
 
         return Ok(contract);
@@ -53,6 +57,7 @@ public class ContractController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Tenant")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<ContractBasicResponseDto>>> GetAll(CancellationToken ct)
     {
         var contracts = await _contractAppService.GetBasicContractsForTenantAsync(ct);
@@ -61,16 +66,23 @@ public class ContractController : ControllerBase
 
     [HttpGet("unit/{unitId:guid}",Name ="GetActiveContractForUnit")]
     [Authorize(Roles = "Tenant")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ContractBasicResponseDto>> GetActiveByUnitId(Guid unitId, CancellationToken ct)
     {
         var contract = await _contractAppService.GetActiveContractByUnitId(unitId, ct);
+        if(contract == null)
+        {
+            return NotFound("No active contract found for the specified unit.");
+        }
         return Ok(contract);
     }
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Tenant")]
-    public async Task<ActionResult<Guid>> Terminate(Guid id, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> Terminate(Guid id, CancellationToken ct)
     {
         var contractId = await _contractAppService.TerminateContractAsync(id, ct);
-        return Ok(contractId);
+        return NoContent();
     }
 }

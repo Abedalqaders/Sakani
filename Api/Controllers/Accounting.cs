@@ -1,14 +1,14 @@
 ﻿using Application.Common.Interfaces.Accounting;
 using Application.Dto.Payment;
 using Domain.Enums;
-using Microsoft.AspNetCore.Authorization; // تأكد من وجود هذا الـ using
+using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // لضمان أن جميع المسارات تتطلب مصادقة (Authentication) أولاً
+    [Authorize] 
     public class AccountingController : ControllerBase
     {
         private readonly IAccountingService _accountingService;
@@ -20,6 +20,7 @@ namespace WebApi.Controllers
 
         [HttpGet("Expected")]
         [Authorize(Roles = "Tenant")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IReadOnlyList<PaymentResponse>>> GetExpectedPayments(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate,
@@ -31,6 +32,7 @@ namespace WebApi.Controllers
 
         [HttpGet("Overdue")]
         [Authorize(Roles = "Tenant")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IReadOnlyList<PaymentResponse>>> GetOverduePayments(CancellationToken ct)
         {
             var result = await _accountingService.GetOverduePaymentsAsync(ct);
@@ -38,10 +40,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("history")]
-        [Authorize(Roles = "Renter")] // الصلاحية الوحيدة المخصصة للمستأجر
+        [Authorize(Roles = "Renter")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IReadOnlyList<PaymentHistoryResponseDto>>> GetMyPaymentHistory([FromQuery] PaymentFilterType filter, CancellationToken ct)
         {
             var history = await _accountingService.GetMyPaymentHistoryAsync(filter,ct);
@@ -50,6 +51,8 @@ namespace WebApi.Controllers
 
         [HttpGet("Stats")]
         [Authorize(Roles = "Tenant")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<DashboardStatsDto>> GetDashboardStats(
             [FromQuery] int month,
             [FromQuery] int year,
@@ -66,11 +69,17 @@ namespace WebApi.Controllers
             }
 
             var result = await _accountingService.GetDashboardStatsAsync(month, year, ct);
+            if(result==null)
+            {
+                return NotFound();
+            }
             return Ok(result);
         }
 
         [HttpGet("Expenses")]
         [Authorize(Roles = "Tenant")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<decimal>> GetExpensesForRange(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate,

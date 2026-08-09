@@ -15,8 +15,6 @@ public abstract class BaseSakaniController : ControllerBase
             return Guid.TryParse(userIdClaim, out var id) ? id : Guid.Empty;
         }
     }
-
-    // استخراج معرف الشركة (Tenant) كـ Guid
     protected Guid CurrentTenantId
     {
         get
@@ -25,10 +23,7 @@ public abstract class BaseSakaniController : ControllerBase
             return Guid.TryParse(tenantIdClaim, out var id) ? id : Guid.Empty;
         }
     }
-
-    // خاصية مساعدة للتأكد من دور المستخدم (SuperAdmin)
     protected bool IsSuperAdmin => User.IsInRole("SuperAdmin");
 
-    // التحقق هل المستخدم يتبع لشركة فعلاً (مفيد في الـ Validations)
     protected bool HasActiveTenant => CurrentTenantId != Guid.Empty;
 }

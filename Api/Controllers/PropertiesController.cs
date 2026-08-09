@@ -24,10 +24,6 @@ namespace Api.Controllers
         public async Task<ActionResult<IReadOnlyList<PropertyResponseDto>>> GetAllProperties(CancellationToken cancellationToken)
         {
             var properties = await _propertyService.GetAllPropertiesAsync(cancellationToken);
-            if (properties.Count == 0)
-            {
-                return NotFound("No Property Found!");
-            }
             return Ok(properties);
         }
 
@@ -65,10 +61,7 @@ namespace Api.Controllers
             
                 await _propertyService.UpdatePropertyAsync(dto, cancellationToken);
                 return NoContent();
-            
-           
         }
-
 
         [HttpDelete("{id:guid}", Name = "DeleteProperty")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -76,11 +69,8 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteProperty(Guid id, CancellationToken cancellationToken)
         {
-           
                 await _propertyService.DeletePropertyAsync(id, cancellationToken);
                 return NoContent();
-            
-            
         }
     }
 }

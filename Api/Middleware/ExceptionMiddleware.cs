@@ -47,7 +47,6 @@ public class ExceptionMiddleware
             _ => (int)HttpStatusCode.InternalServerError
         };
 
-        // 2. إخفاء تفاصيل الخطأ الحساسة في بيئة الإنتاج
         var isDevelopment = env.IsDevelopment();
         var isServerError = context.Response.StatusCode == 500;
 

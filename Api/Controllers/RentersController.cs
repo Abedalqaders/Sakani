@@ -23,14 +23,9 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<Guid>> Create([FromBody] CreateRenterDto dto, CancellationToken ct)
         {
-            
-                // The service handles logic and returns the new Renter ID
-                var renterId = await _renterService.CreateAsync(dto, ct);
-
-                // Returns 201 Created with a link to the GetById endpoint
-                return CreatedAtAction(nameof(GetById), new { id = renterId }, renterId);
-            
+           var renterId = await _renterService.CreateAsync(dto, ct);
            
+           return CreatedAtAction(nameof(GetById), new { id = renterId }, renterId);
         }
 
         [HttpGet]
@@ -39,12 +34,7 @@ namespace WebApi.Controllers
         public async Task<ActionResult<IReadOnlyList<RenterResponseDto>>> GetAll(CancellationToken ct)
         {
             var renters = await _renterService.GetAllAsync(ct);
-
-            if (renters == null || !renters.Any())
-            {
-                return NotFound(new { message = "No renters found for this tenant." });
-            }
-
+          
             return Ok(renters);
         }
 

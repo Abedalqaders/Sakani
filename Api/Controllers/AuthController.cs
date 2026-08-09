@@ -24,6 +24,8 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
                                   {
             var user = await _context.Users
@@ -72,6 +74,10 @@ namespace WebApi.Controllers
 
         [HttpPost("register-renter/{renterId}")]
         [Authorize(Roles = "Tenant")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterRenterAccount(Guid renterId, [FromBody] CreateUserAccountRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
@@ -118,6 +124,10 @@ namespace WebApi.Controllers
 
         [HttpPost("register-tenant/{tenantId}")]
         [Authorize(Roles = "SuperAdmin")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> RegisterTenantAccount(Guid tenantId, [FromBody] CreateUserAccountRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
