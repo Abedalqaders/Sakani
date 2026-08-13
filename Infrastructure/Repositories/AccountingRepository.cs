@@ -3,11 +3,7 @@ using Application.Dto.Payment;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrastructure.Repositories
 {
@@ -107,33 +103,45 @@ namespace Infrastructure.Repositories
                 .Where(e => e.ExpenseDate >= startDate && e.ExpenseDate <= endDate)
                 .SumAsync(e => (decimal?)e.Amount, ct) ?? 0m;
         }
-        public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetPaymentHistoryForRenterAsync(Guid renterId, CancellationToken ct)
+        public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetPaymentHistoryForRenterAsync(Guid renterId, PaymentFilterType filter, CancellationToken ct)
         {
-            return await _context.Set<Payment>()
-                .AsNoTracking() // لأنها عملية قراءة فقط
+            IQueryable<PaymentHistoryResponseDto> query = _context.Set<Payment>()
+                .AsNoTracking()
                 .Where(p => p.Contract.RenterId == renterId)
-                .OrderByDescending(p => p.ActualPaymentDate) // أحدث الدفعات أولاً
+                .OrderByDescending(p => p.ActualPaymentDate)
                 .Select(p => new PaymentHistoryResponseDto
                 {
                     PaymentId = p.Id,
                     Amount = p.Amount,
                     DueDate = p.DueDate,
-                    // نستخدم القيمة الفعلية، وإذا كانت null (رغم إنها المفروض ما تكون لدفعة مدفوعة) بنحط تاريخ اليوم كحماية
-                    PaymentDate = p.ActualPaymentDate ,
+                    PaymentDate = p.ActualPaymentDate,
                     TransactionId = p.TransactionId,
                     PropertyName = p.Contract.Unit.Property.Name,
-                    UnitNo = p.Contract.Unit.UnitNo ,
-                    PaymentStatus=p.PaymentStatus
-                })
-                .ToListAsync(ct);
+                    UnitNo = p.Contract.Unit.UnitNo,
+                    PaymentStatus = p.PaymentStatus
+                });
+
+            switch (filter)
+            {
+                case PaymentFilterType.Overdue:
+                    query = query.Where(p => p.PaymentStatus == PaymentStatus.Overdue ||
+                        (p.PaymentStatus == PaymentStatus.Pending && p.DueDate < DateTime.UtcNow));
+                    break;
+                case PaymentFilterType.Upcoming:
+                    query = query.Where(p => p.PaymentStatus == PaymentStatus.Pending && p.DueDate >= DateTime.UtcNow);
+                    break;
+            }
+
+            return await query.ToListAsync(ct);
         }
+
         public async Task<IReadOnlyList<PendingPaymentResponseDto>> GetPendingPaymentsForRenterAsync(Guid renterId, CancellationToken ct)
         {
             return await _context.Set<Payment>()
                 .AsNoTracking()
                 .Where(p => p.Contract.RenterId == renterId &&
                            (p.PaymentStatus == PaymentStatus.Pending || p.PaymentStatus == PaymentStatus.Overdue))
-                .OrderBy(p => p.DueDate) // الأقدم (المستحق أولاً) بيطلع فوق
+                .OrderBy(p => p.DueDate) 
                 .Select(p => new PendingPaymentResponseDto
                 {
                     PaymentId = p.Id,
@@ -160,6 +168,7 @@ namespace Infrastructure.Repositories
                     ContractEndDate = p.Contract.EndDate
                 })
                 .FirstOrDefaultAsync(ct);
+
         }
     }
 }

@@ -4,11 +4,9 @@
     using Application.Common.Interfaces.Tenant;
     using Domain.Common;
     using Domain.Entities;
-    using Domain.Enums;
     using Microsoft.EntityFrameworkCore;
-    using Application.Interfaces;
 
-    public class ApplicationDbContext : DbContext, IApplicationDbContext
+    public class ApplicationDbContext : DbContext
     {
         private readonly Guid? _tenantId;
         private readonly ICurrentUserService _currentUserService;

@@ -1,6 +1,5 @@
 using Api.Services;
 using Application.Common.Interfaces.General;
-using Application.Interfaces;
 using Application.Validators.Tenant;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -111,7 +110,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseSnakeCaseNamingConvention());
 
-builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
 
 var jwtKey = builder.Configuration["Jwt:Key"]

@@ -7,7 +7,7 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize (Roles ="Tenant")] // Requires a valid JWT token
+    [Authorize (Roles ="Tenant")] 
     public class RentersController : ControllerBase
     {
         private readonly IRenterAppService _renterService;

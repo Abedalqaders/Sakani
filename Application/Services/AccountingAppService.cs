@@ -18,25 +18,14 @@ namespace Application.Services
         }
         public async Task<IReadOnlyList<PaymentHistoryResponseDto>> GetMyPaymentHistoryAsync(PaymentFilterType filter, CancellationToken ct)
         {
-            // بنجيب الـ ID تبع المستأجر من الـ Token
+
             var renterId = _currentUserService.RenterId.GetValueOrDefault();
 
 
-            var query = await _accountingRepo.GetPaymentHistoryForRenterAsync(renterId, ct);
-            IEnumerable<PaymentHistoryResponseDto> filteredResult = query;
-            switch (filter) {
-            case PaymentFilterType.Overdue:
-                    filteredResult = filteredResult.Where(p => p.PaymentStatus == PaymentStatus.Overdue ||
-        (p.PaymentStatus == PaymentStatus.Pending && p.DueDate < DateTime.UtcNow)); ;
-                break;
-                case PaymentFilterType.Upcoming:
-                    filteredResult = filteredResult.Where(p => p.PaymentStatus == PaymentStatus.Pending && p.DueDate >= DateTime.UtcNow);
-                    break;
-                }
-            return filteredResult.ToList();
-                
+            var PaymentHistoryFilterd = await _accountingRepo.GetPaymentHistoryForRenterAsync(renterId, filter, ct);
 
-            }
+            return PaymentHistoryFilterd; 
+         }
             
         
         public async Task<IReadOnlyList<PendingPaymentResponseDto>> GetMyPendingPaymentsAsync(CancellationToken ct)

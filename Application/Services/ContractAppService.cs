@@ -67,7 +67,6 @@ namespace Application.Services
 
             unit.UnitStatus = UnitStatus.Rented;
             unit.IsVacancyNotified = false;
-            _unitRepo.Update(unit);
 
             _contractRepo.Add(contract);
             await _unitOfWork.SaveChangesAsync(ct);
@@ -99,12 +98,10 @@ namespace Application.Services
 
             contract.ContractStatus = ContractStatus.Terminated;
             contract.EndDate = DateTime.UtcNow;
-            _contractRepo.Update(contract);
 
             if (contract.Unit!=null)
             {
                 contract.Unit.UnitStatus = UnitStatus.Available;
-                _unitRepo.Update(contract.Unit);
             }
 
             await _paymentRepo.CancelPaymentForContract(contractId, ct);
