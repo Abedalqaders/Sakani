@@ -70,20 +70,21 @@ namespace Application.Services
 
             _contractRepo.Add(contract);
             await _unitOfWork.SaveChangesAsync(ct);
-
             return contract.Id;
         }
-        public async Task<MyContractDetailsDto> GetMyContractAsync(CancellationToken ct)
+        public async Task<IReadOnlyList<MyContractDetailsDto>> GetMyContractAsync(CancellationToken ct)
         {
-            var renterid = _currentUserService.RenterId;
-            if (renterid == Guid.Empty)
-            {
-                return new MyContractDetailsDto();
-            }
-            return await _contractRepo.GetActiveContractForRenterAsync(renterid.Value, ct);
+            var renterId = _currentUserService.RenterId;
 
+
+            if (!renterId.HasValue || renterId.Value == Guid.Empty)
+            {
+                throw new UnauthorizedAccessException("Renter identity is missing or invalid.");
+            }
+
+            return await _contractRepo.GetActiveContractForRenterAsync(renterId.Value, ct);
         }
-        public async Task<Guid> TerminateContractAsync(Guid contractId, CancellationToken ct)
+        public async Task TerminateContractAsync(Guid contractId, CancellationToken ct)
         {
             var contract = await _contractRepo.GetContractWithUnitAsync(contractId, ct);
             if (contract == null)
@@ -107,7 +108,6 @@ namespace Application.Services
             await _paymentRepo.CancelPaymentForContract(contractId, ct);
 
             await _unitOfWork.SaveChangesAsync(ct);
-            return contract.Id;
         }
         private void GeneratePaymentSchedule(Contract contract, byte intervalInMonths)
         {
@@ -143,25 +143,7 @@ namespace Application.Services
             {
                 throw new KeyNotFoundException("Contract not found.");
             }
-            return new ContractResponseDto
-            {
-                Id = contractId,
-                StartDate = Contract.StartDate,
-                EndDate = Contract.EndDate,
-                RentAmount = Contract.RentAmount,
-                ContractStatus = Contract.ContractStatus,
-                UnitId = Contract.UnitId,
-                RenterId = Contract.RenterId,
-                Payments = Contract.Payments.Select(p => new PaymentResponseDto
-                {
-                    Id = p.Id,
-                    Amount = p.Amount,
-                    DueDate = p.DueDate,
-                    PaymentDate = p.PaymentDate,
-                    PaymentStatus = p.PaymentStatus
-                }).OrderBy(p => p.DueDate).ToList()
-
-            };
+            return Contract;
         }
 
 
@@ -169,23 +151,17 @@ namespace Application.Services
         {
             var contracts = await _contractRepo.GetBasicContractsForTenantAsync(ct);
 
-            // الميدل وير سيمسك هذا الاستثناء ويحوله لـ 404
-            if (contracts == null || !contracts.Any())
-            {
-                throw new KeyNotFoundException("No contracts found for this tenant.");
-            }
-
             return contracts;
         }
 
         public async Task<ContractBasicResponseDto> GetActiveContractByUnitId(Guid unitId, CancellationToken ct)
         {
-            var contract = await _contractRepo.GetActiveContractsByUnitIdAsync(unitId, ct);
-
-            if (contract == null)
+            var unit = await _unitRepo.GetByIdAsync(unitId);
+            if (unit == null)
             {
-                throw new KeyNotFoundException("No active contract found for this unit.");
+                throw new KeyNotFoundException("Unit not found.");
             }
+            var contract = await _contractRepo.GetActiveContractsByUnitIdAsync(unitId, ct);
 
             return contract;
         }

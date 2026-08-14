@@ -22,9 +22,6 @@ public class ContractController : ControllerBase
     public async Task<ActionResult<ContractResponseDto>> GetById(Guid id, CancellationToken ct)
     {
         var contract = await _contractAppService.GetContractWithPaymentsAsync(id, ct);
-        if (contract == null) {
-            return NotFound("Contract not found");
-        }
         return Ok(contract);
     }
 
@@ -41,15 +38,14 @@ public class ContractController : ControllerBase
     [HttpGet("my-active")]
     [Authorize(Roles = "Renter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MyContractDetailsDto>> GetMyActiveContract(CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IReadOnlyList<MyContractDetailsDto>>> GetMyActiveContract(CancellationToken ct)
     {
         var contract = await _contractAppService.GetMyContractAsync(ct);
 
         if (contract == null)
         {
-   
-            return NotFound("No Contract Found");
+            return NoContent();
         }
 
         return Ok(contract);
@@ -67,22 +63,25 @@ public class ContractController : ControllerBase
     [HttpGet("unit/{unitId:guid}",Name ="GetActiveContractForUnit")]
     [Authorize(Roles = "Tenant")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ContractBasicResponseDto>> GetActiveByUnitId(Guid unitId, CancellationToken ct)
     {
         var contract = await _contractAppService.GetActiveContractByUnitId(unitId, ct);
         if(contract == null)
         {
-            return NotFound("No active contract found for the specified unit.");
+            return NoContent();
         }
         return Ok(contract);
     }
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Tenant")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Terminate(Guid id, CancellationToken ct)
     {
-        var contractId = await _contractAppService.TerminateContractAsync(id, ct);
+        await _contractAppService.TerminateContractAsync(id, ct);
         return NoContent();
     }
 }

@@ -17,9 +17,9 @@ namespace Application.Common.Interfaces.Contract
 
         public Task<ContractBasicResponseDto> GetActiveContractByUnitId(Guid unitId, CancellationToken ct);
 
-        public Task<Guid> TerminateContractAsync(Guid contractId, CancellationToken ct);
+        public Task TerminateContractAsync(Guid contractId, CancellationToken ct);
 
-        public Task<MyContractDetailsDto> GetMyContractAsync(CancellationToken ct);
+        public Task<IReadOnlyList<MyContractDetailsDto>> GetMyContractAsync(CancellationToken ct);
 
     }
 }

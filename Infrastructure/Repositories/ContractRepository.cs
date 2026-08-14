@@ -19,7 +19,7 @@ namespace Infrastructure.Repositories
         public async Task<ContractResponseDto?> GetContractWithPaymentsAsync(Guid contractId, CancellationToken ct)
         {
             return await _context.Set<Contract>()
-                .AsNoTracking() // دائماً استخدمها في عمليات القراءة فقط
+                .AsNoTracking() 
                 .Where(c => c.Id == contractId)
                 .Select(c => new ContractResponseDto
                 {
@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
                     ContractStatus = c.ContractStatus,
                     UnitId = c.UnitId,
                     RenterId = c.RenterId,
-                    // جلب الدفعات يدوياً داخل الـ Select لضمان أفضل أداء (Single SQL Query)
+                   
                     Payments = c.Payments.Select(p => new PaymentResponseDto
                     {
                         Id = p.Id,
@@ -38,7 +38,7 @@ namespace Infrastructure.Repositories
                         DueDate = p.DueDate,
                         PaymentDate = p.PaymentDate,
                         PaymentStatus = p.PaymentStatus
-                    }).ToList()
+                    }).OrderBy(p => p.DueDate).ToList()
                 })
                 .FirstOrDefaultAsync(ct);
         }
@@ -59,10 +59,10 @@ namespace Infrastructure.Repositories
                 })
                 .FirstOrDefaultAsync(ct);
         }
-        public async Task<MyContractDetailsDto?> GetActiveContractForRenterAsync(Guid renterId, CancellationToken ct)
+        public async Task<IReadOnlyList<MyContractDetailsDto?>> GetActiveContractForRenterAsync(Guid renterId, CancellationToken ct)
         {
             return await _context.Set<Contract>()
-        .AsNoTracking().Where(c=> c.RenterId==renterId && c.ContractStatus == ContractStatus.Active).Select(c => new MyContractDetailsDto
+        .AsNoTracking().Where(c => c.RenterId == renterId && c.ContractStatus == ContractStatus.Active).Select(c => new MyContractDetailsDto
         {
             ContractId = c.Id,
             StartDate = c.StartDate,
@@ -71,13 +71,13 @@ namespace Infrastructure.Repositories
             ContractStatus = c.ContractStatus,
             UnitNo = c.Unit.UnitNo,
             PropertyName = c.Unit.Property.Name
-        })
-        .FirstOrDefaultAsync(ct);
+        }).ToListAsync(ct);
 
         }
-        public async Task<IReadOnlyList<ContractBasicResponseDto?>> GetBasicContractsForTenantAsync(CancellationToken ct)
+        public async Task<IReadOnlyList<ContractBasicResponseDto>> GetBasicContractsForTenantAsync(CancellationToken ct)
         { 
           return await _context.Set<Contract>()
+                .AsNoTracking()
                 .Select(c => new ContractBasicResponseDto
                 {
                     Id = c.Id,
