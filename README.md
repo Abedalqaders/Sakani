@@ -65,6 +65,20 @@ Api  →  Application  →  Domain  ←  Infrastructure
 | **Infrastructure** | EF Core `DbContext`, PostgreSQL, repositories, migrations |
 | **Api** | Controllers, JWT middleware, Swagger — the only layer exposed publicly |
 
+Project layout:
+
+```
+src/
+├── Core/
+│   ├── Domain/            # entities, enums — no dependencies
+│   └── Application/       # use cases, DTOs, interfaces — depends on Domain
+├── External/
+│   └── Infrastructure/    # EF Core, PostgreSQL, repositories — depends on Application, Domain
+└── Api/                   # ASP.NET Core host, controllers — composition root
+tests/
+└── Architecture.Tests/    # enforces the dependency rule (`dotnet test`)
+```
+
 Multi-tenancy is enforced via a global EF Core query filter on `landlord_id`, so every query is automatically scoped to the current landlord.
 
 ---
@@ -73,7 +87,7 @@ Multi-tenancy is enforced via a global EF Core query filter on `landlord_id`, so
 
 ```bash
 docker-compose up -d      # start PostgreSQL
-cd Api
+cd src/Api
 dotnet run                 # run the API (Swagger at /swagger)
 ```
 
