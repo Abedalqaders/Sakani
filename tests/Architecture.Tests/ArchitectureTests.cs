@@ -1,110 +1,149 @@
-using System.Reflection;
-
 namespace Architecture.Tests;
 
 /// <summary>
 /// Enforces the Clean Architecture dependency rule: dependencies may only point inward.
 ///
-///   Api  ──►  Infrastructure  ──►  Application  ──►  Domain
-///
-/// Domain        → depends on nothing.
-/// Application   → may depend on Domain only.
-/// Infrastructure→ may depend on Application and Domain, never on Api.
-/// Api           → composition root, may depend on everything.
+///   Api (Web + Presentation)  ──►  Infrastructure  ──►  Application  ──►  Domain
 /// </summary>
 public class ArchitectureTests
 {
-    private static readonly Assembly DomainAssembly = Domain.AssemblyReference.Assembly;
-    private static readonly Assembly ApplicationAssembly = Application.AssemblyReference.Assembly;
-    private static readonly Assembly InfrastructureAssembly = Infrastructure.AssemblyReference.Assembly;
-    private static readonly Assembly ApiAssembly = Api.AssemblyReference.Assembly;
+    private const string DomainNamespace = "Domain";
+    private const string ApplicationNamespace = "Application";
+    private const string InfrastructureNamespace = "Infrastructure";
+    private const string ApiNamespace = "Api";
+    private const string ControllersNamespace = "Api.Controllers";
 
-    // Some files use legacy root namespaces (e.g. "Sakani.API", "WebApi", "Sakani.Infrastructure"),
-    // so every rule checks all the namespaces a layer is known to use.
-    private static readonly string[] ApplicationNamespaces = { "Application" };
-    private static readonly string[] InfrastructureNamespaces = { "Infrastructure", "Sakani.Infrastructure" };
-    private static readonly string[] ApiNamespaces = { "Api", "Sakani.API", "WebApi" };
-
-    // ── Project (assembly) references ────────────────────────────────────────
+    // Legacy root namespaces still used by a few files.
+    private const string LegacyInfrastructureNamespace = "Sakani.Infrastructure";
+    private const string LegacyApiNamespace = "Sakani.API";
+    private const string LegacyWebApiNamespace = "WebApi";
 
     [Fact]
-    public void Domain_Should_NotReference_AnyOtherProject()
+    public void Domain_Should_Not_HaveDependencyOnOtherProjects()
     {
-        ReferencedProjects(DomainAssembly).Should().BeEmpty();
-    }
+        // Arrange
+        var assembly = typeof(Domain.AssemblyReference).Assembly;
 
-    [Fact]
-    public void Application_Should_OnlyReference_Domain()
-    {
-        ReferencedProjects(ApplicationAssembly).Should().BeEquivalentTo(DomainAssembly.GetName().Name);
-    }
+        var otherProjects = new[]
+        {
+            ApplicationNamespace,
+            InfrastructureNamespace,
+            LegacyInfrastructureNamespace,
+            ApiNamespace,
+            LegacyApiNamespace,
+            LegacyWebApiNamespace,
+        };
 
-    [Fact]
-    public void Infrastructure_Should_NotReference_Api()
-    {
-        ReferencedProjects(InfrastructureAssembly).Should().NotContain(ApiAssembly.GetName().Name);
-    }
-
-    // ── Type-level dependencies (catches usages, not just references) ────────
-
-    [Fact]
-    public void Domain_Should_NotHaveDependencyOn_OtherLayers()
-    {
-        var result = Types.InAssembly(DomainAssembly)
+        // Act
+        var testResult = Types
+            .InAssembly(assembly)
             .ShouldNot()
-            .HaveDependencyOnAny([.. ApplicationNamespaces, .. InfrastructureNamespaces, .. ApiNamespaces])
+            .HaveDependencyOnAny(otherProjects)
             .GetResult();
 
-        AssertSuccessful(result);
+        // Assert
+        testResult.IsSuccessful.Should().BeTrue(FailureMessage(testResult));
     }
 
     [Fact]
-    public void Application_Should_NotHaveDependencyOn_InfrastructureOrApi()
+    public void Application_Should_Not_HaveDependencyOnOtherProjects()
     {
-        var result = Types.InAssembly(ApplicationAssembly)
+        // Arrange
+        var assembly = typeof(Application.AssemblyReference).Assembly;
+
+        var otherProjects = new[]
+        {
+            InfrastructureNamespace,
+            LegacyInfrastructureNamespace,
+            ApiNamespace,
+            LegacyApiNamespace,
+            LegacyWebApiNamespace,
+        };
+
+        // Act
+        var testResult = Types
+            .InAssembly(assembly)
             .ShouldNot()
-            .HaveDependencyOnAny([.. InfrastructureNamespaces, .. ApiNamespaces])
+            .HaveDependencyOnAny(otherProjects)
             .GetResult();
 
-        AssertSuccessful(result);
+        // Assert
+        testResult.IsSuccessful.Should().BeTrue(FailureMessage(testResult));
     }
 
     [Fact]
-    public void Infrastructure_Should_NotHaveDependencyOn_Api()
+    public void Infrastructure_Should_Not_HaveDependencyOnOtherProjects()
     {
-        var result = Types.InAssembly(InfrastructureAssembly)
+        // Arrange
+        var assembly = typeof(Infrastructure.AssemblyReference).Assembly;
+
+        var otherProjects = new[]
+        {
+            ApiNamespace,
+            LegacyApiNamespace,
+            LegacyWebApiNamespace,
+        };
+
+        // Act
+        var testResult = Types
+            .InAssembly(assembly)
             .ShouldNot()
-            .HaveDependencyOnAny(ApiNamespaces)
+            .HaveDependencyOnAny(otherProjects)
             .GetResult();
 
-        AssertSuccessful(result);
+        // Assert
+        testResult.IsSuccessful.Should().BeTrue(FailureMessage(testResult));
     }
 
     [Fact]
-    public void Domain_Should_NotHaveDependencyOn_EntityFrameworkCore()
+    public void Controllers_Should_Not_HaveDependencyOnInfrastructure()
     {
-        var result = Types.InAssembly(DomainAssembly)
+        // Arrange
+        // Api is the composition root (Program.cs wires Infrastructure up), but the
+        // controllers are the presentation layer and must only talk to Application.
+        var assembly = typeof(Api.AssemblyReference).Assembly;
+
+        var otherProjects = new[]
+        {
+            InfrastructureNamespace,
+            LegacyInfrastructureNamespace,
+        };
+
+        // Act
+        var testResult = Types
+            .InAssembly(assembly)
+            .That()
+            .ResideInNamespaceStartingWith(ControllersNamespace)
+            .Or()
+            .ResideInNamespaceStartingWith("Sakani.API.Controllers")
+            .Or()
+            .ResideInNamespaceStartingWith("WebApi.Controllers")
+            .ShouldNot()
+            .HaveDependencyOnAny(otherProjects)
+            .GetResult();
+
+        // Assert
+        testResult.IsSuccessful.Should().BeTrue(FailureMessage(testResult));
+    }
+
+    [Fact]
+    public void Domain_Should_Not_HaveDependencyOnEntityFrameworkCore()
+    {
+        // Arrange
+        var assembly = typeof(Domain.AssemblyReference).Assembly;
+
+        // Act
+        var testResult = Types
+            .InAssembly(assembly)
             .ShouldNot()
             .HaveDependencyOn("Microsoft.EntityFrameworkCore")
             .GetResult();
 
-        AssertSuccessful(result);
+        // Assert
+        testResult.IsSuccessful.Should().BeTrue(FailureMessage(testResult));
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
-    private static readonly HashSet<string?> SolutionProjects = new[]
-    {
-        DomainAssembly, ApplicationAssembly, InfrastructureAssembly, ApiAssembly,
-    }.Select(a => a.GetName().Name).ToHashSet();
-
-    private static IEnumerable<string?> ReferencedProjects(Assembly assembly) =>
-        assembly.GetReferencedAssemblies()
-            .Select(a => a.Name)
-            .Where(SolutionProjects.Contains);
-
-    private static void AssertSuccessful(TestResult result) =>
-        result.IsSuccessful.Should().BeTrue(
-            "these types break the dependency rule: {0}",
-            string.Join(", ", result.FailingTypeNames ?? []));
+    private static string FailureMessage(TestResult result) =>
+        "these types break the dependency rule: " +
+        string.Join(", ", result.FailingTypeNames ?? []);
 }
